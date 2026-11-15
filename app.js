@@ -85,6 +85,8 @@ function related(a, b) {
   if (a.grp && a.grp === b.grp) return true;
   const low = x => x.toLowerCase();
   if (a.syn.map(low).includes(low(b.en)) || b.syn.map(low).includes(low(a.en))) return true;
+  // eş anlamlıları ortak olan kelimeler de aynı boşluğa uyabilir
+  if (a.syn.some(x => b.syn.map(low).includes(low(x)))) return true;
   const first = w => w.tr.split(',')[0].trim();
   return first(a) === first(b);
 }
@@ -94,15 +96,27 @@ function distractors(word, n = 3) {
   const scored = shuffle(cands).sort((x, y) => Math.abs(x.lvl - word.lvl) - Math.abs(y.lvl - word.lvl));
   return scored.slice(0, n);
 }
+// Boşluktan önceki "a/an" cevabı ele vermesin: soruda "a/an", cevapta doğrusu
+const ART = /\b(a|an)\s+$/i;
+function splitEx(w, answer) {
+  let [pre, post = ''] = w.ex.split('___');
+  const m = pre.match(ART);
+  if (m) {
+    const art = answer ? (/^[aeiou]/i.test(answer) ? 'an' : 'a') : 'a/an';
+    const fixed = m[1][0] === 'A' ? cap(art) : art;
+    pre = pre.slice(0, m.index) + fixed + ' ';
+  }
+  return [pre, post];
+}
+function fillWord(w, word) {
+  const [pre, post] = splitEx(w, word);
+  return [pre, pre.trim() === '' ? cap(word) : word, post];
+}
 function exampleHTML(w) {
-  const parts = w.ex.split('___');
-  const ans = parts[0].trim() === '' ? cap(w.en) : w.en;
-  return esc(parts[0]) + '<b>' + esc(ans) + '</b>' + esc(parts[1] || '');
+  const [pre, ans, post] = fillWord(w, w.en);
+  return esc(pre) + '<b>' + esc(ans) + '</b>' + esc(post);
 }
-function exampleText(w) {
-  const parts = w.ex.split('___');
-  return parts[0] + (parts[0].trim() === '' ? cap(w.en) : w.en) + (parts[1] || '');
-}
+function exampleText(w) { return fillWord(w, w.en).join(''); }
 
 // ---------- Ses ----------
 let actx = null;
@@ -512,7 +526,7 @@ function sentenceStep(list, i) {
   if (i >= list.length) return nextStep();
   const w = list[i];
   const opts = shuffle([w, ...distractors(w, 3)]);
-  const [pre, post] = w.ex.split('___');
+  const [pre, post] = splitEx(w, null);
   const atStart = pre.trim() === '';
   render(`
     ${head(i / list.length)}
@@ -529,6 +543,9 @@ function sentenceStep(list, i) {
     answered = true;
     const id = chip.dataset.id, ok = id === w.id;
     slot.textContent = atStart ? cap(BY_ID[id].en) : BY_ID[id].en;
+    // a/an'ı seçilen kelimeye göre düzelt
+    const [p2] = splitEx(w, BY_ID[id].en);
+    if (p2 !== pre) slot.parentNode.firstChild.textContent = p2;
     slot.classList.add(ok ? 'okf' : 'badf');
     chip.classList.add('used');
     app.querySelectorAll('.chip').forEach(c => c.style.pointerEvents = 'none');

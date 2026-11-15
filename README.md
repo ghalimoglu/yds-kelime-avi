@@ -4,7 +4,7 @@ Her akşam ~10 dakikada YDS'de en sık çıkan kelimeleri oyunla ezberlemek içi
 Kurulum gerektirmez, internet olmadan da çalışır, iPhone'da ana ekrana simge olarak eklenir.
 
 ## İçerik
-- **167 kelime**, 6 grup: Fiiller, İsimler, Sıfatlar, Zarflar, Bağlaçlar/geçiş ifadeleri, Phrasal verb'ler
+- **575 kelime**, 6 grup: Fiiller, İsimler, Sıfatlar, Zarflar, Bağlaçlar/geçiş ifadeleri, Phrasal verb'ler
 - Her grup **Kolay / Orta / Zor** olarak ayrılmış
 - Her kelimede: Türkçe anlam, eş anlamlılar, YDS tarzı örnek cümle, hafıza ipucu
 

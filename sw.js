@@ -1,4 +1,4 @@
-const CACHE = 'yds-avi-v1';
+const CACHE = 'yds-avi-v2';
 const FILES = ['./', './index.html', './style.css', './app.js', './words.js', './manifest.webmanifest',
   './icons/icon-192.png', './icons/icon-512.png', './icons/apple-touch-icon.png'];
 self.addEventListener('install', e => {
