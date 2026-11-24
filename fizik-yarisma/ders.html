@@ -4,61 +4,26 @@
 <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800;900&display=swap" rel="stylesheet">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%}
-body{font-family:Montserrat,Arial,sans-serif;color:#fff;background:#0f2f5c;overflow:hidden}
-.screen{display:none;height:100vh;height:100dvh;flex-direction:column}
-.screen.on{display:flex}
-.center{align-items:center;justify-content:center;text-align:center;padding:20px;overflow:auto}
-h1{font-weight:900;font-size:clamp(30px,6vw,56px)}
-.card{background:#fff;color:#333;border-radius:12px;padding:22px;width:min(440px,92vw);margin-top:18px}
-input{width:100%;font:800 24px Montserrat,Arial;padding:12px;border:2px solid #ccc;border-radius:6px;text-align:center;margin-bottom:12px;letter-spacing:4px}
-.btn{border:0;cursor:pointer;font:800 19px Montserrat,Arial;padding:14px 22px;border-radius:6px;color:#fff;background:#333;box-shadow:0 4px 0 rgba(0,0,0,.3);min-height:52px}
-.w{width:100%}.green{background:#26890c}.blue{background:#1368ce}.red{background:#e21b3c}
-.bar{display:flex;gap:10px;align-items:center;padding:10px 14px;background:rgba(0,0,0,.35);flex-wrap:wrap}
-.bar .grow{flex:1}
-.pill{background:rgba(255,255,255,.15);border-radius:20px;padding:8px 14px;font-weight:800}
-.main{flex:1;display:flex;align-items:center;justify-content:center;gap:30px;padding:16px;flex-wrap:wrap;overflow:auto}
-.qrcard{background:#fff;color:#333;border-radius:12px;padding:18px;text-align:center;width:min(380px,90vw)}
-.code{font-size:56px;font-weight:900;letter-spacing:6px}
-video{width:100%;height:100%;object-fit:contain;background:#000}
-.stage{flex:1;position:relative;background:#000;display:flex;align-items:center;justify-content:center}
-.msg{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:20px;font-weight:800;font-size:22px;background:#0f2f5c}
-.spinner{width:54px;height:54px;border:6px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp 1s linear infinite;margin:16px}
-@keyframes sp{to{transform:rotate(360deg)}}
-.note{font-size:15px;font-weight:600;opacity:.9;max-width:520px;line-height:1.5}
+body{font-family:Montserrat,Arial,sans-serif;min-height:100vh;color:#fff;background:#1368ce;display:flex;flex-direction:column;align-items:center;padding:24px 16px}
+h1{font-weight:900;font-size:clamp(30px,5vw,52px);text-align:center;text-shadow:0 4px 0 rgba(0,0,0,.2)}
+.card{background:#fff;color:#333;border-radius:12px;padding:22px;width:min(560px,100%);margin-top:20px;box-shadow:0 5px 0 rgba(0,0,0,.25)}
+input{width:100%;font:600 18px Montserrat,Arial;padding:14px;border:2px solid #ccc;border-radius:6px;margin:10px 0}
+.btn{border:0;cursor:pointer;font:800 19px Montserrat,Arial;padding:14px 20px;border-radius:6px;background:#26890c;color:#fff;width:100%;box-shadow:0 4px 0 rgba(0,0,0,.3)}
+.muted{font-size:14px;color:#666;line-height:1.5}
+#qrBox{display:none;flex-direction:column;align-items:center;margin-top:20px;width:min(560px,100%)}
+#qr{background:#fff;padding:16px;border-radius:12px;width:min(440px,86vw)}
+.link{margin-top:12px;font-weight:800;word-break:break-all;text-align:center;font-size:18px}
 a{color:#fff}
 </style></head><body>
-
-<section id="sLand" class="screen center on">
-  <h1>Fizik I · Canlı Ders</h1>
-  <div class="card">
-    <b>Öğrenci</b>
-    <input id="codeIn" inputmode="numeric" maxlength="4" placeholder="Oda kodu" style="margin-top:10px">
-    <button class="btn w blue" id="joinBtn">Odaya katıl</button>
-    <hr style="margin:18px 0;border:0;border-top:1px solid #ddd">
-    <b>Öğretmen</b>
-    <button class="btn w green" id="hostBtn" style="margin-top:10px">Odayı aç</button>
-  </div>
-  <p style="margin-top:18px"><a href="./">← Ana sayfa</a></p>
-</section>
-
-<section id="sHost" class="screen">
-  <div class="bar"><span class="pill" id="hCode">Oda ····</span><span class="pill" id="hCnt">0 öğrenci</span><span class="grow"></span>
-    <button class="btn blue" id="shareBtn">🖥 Ekranı paylaş</button><button class="btn red" id="endBtn">Dersi bitir</button></div>
-  <div class="main" id="hMain">
-    <div class="qrcard"><div style="font-weight:700;color:#666">QR'ı okutun ya da kodu girin</div><div id="qr" style="margin:12px 0"></div>
-      <div style="font-weight:700;color:#666">Oda kodu</div><div class="code" id="codeShow">····</div><div id="net" style="font-size:13px;color:#888;margin-top:6px">Bağlanıyor…</div></div>
-    <div class="note" id="hNote"></div>
-  </div>
-  <div class="stage" id="hStage" style="display:none"><video id="hVid" muted playsinline autoplay></video></div>
-</section>
-
-<section id="sStu" class="screen">
-  <div class="stage"><video id="sVid" muted playsinline autoplay></video>
-    <div class="msg" id="sMsg"><div class="spinner"></div>Odaya bağlanılıyor…</div></div>
-</section>
-
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<h1>Fizik I · Ders</h1>
+<div class="card">
+  <b>Toplantı linkini yapıştır</b>
+  <p class="muted">Google Meet (ya da Zoom) linkini buraya yapıştır. Öğrenciler QR'ı okutunca doğrudan o toplantıya girer.</p>
+  <input id="lnk" placeholder="https://meet.google.com/abc-defg-hij" autocomplete="off">
+  <button class="btn" id="go">QR'ı göster</button>
+</div>
+<div id="qrBox"><div id="qr"></div><div class="link" id="lnkShow"></div></div>
+<p style="margin-top:24px"><a href="./">← Ana sayfa</a></p>
 <script>(function(){var M={};function R(n){n=n.replace(/^\.\//,"").replace(/\.js$/,"");if(n===""||n===".")n="index";var m=M[n];if(m.e)return m.e.exports;var module={exports:{}};m.e=module;m.f(module,module.exports,R);return module.exports;}
 M["QR8bitByte"]={f:function(module,exports,require){var QRMode = require('./QRMode');
 
@@ -1308,91 +1273,15 @@ module.exports = QRCode;
 window.QRGen=R("index");window.QRECL=R("QRErrorCorrectLevel");})();</script>
 <script>
 {
-const PREFIX="iku-fizik-ekran-";
-const ICE={iceServers:[{urls:"stun:stun.l.google.com:19302"},{urls:"stun:global.stun.twilio.com:3478"},
- {urls:["turn:openrelay.metered.ca:80","turn:openrelay.metered.ca:443","turn:openrelay.metered.ca:443?transport=tcp"],username:"openrelayproject",credential:"openrelayproject"}]};
 const $=id=>document.getElementById(id);
-const show=id=>document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));
 function qrSvg(t){const q=new QRGen(-1,QRECL.M);q.addData(t);q.make();const n=q.getModuleCount();let r="";
  for(let y=0;y<n;y++)for(let x=0;x<n;x++)if(q.isDark(y,x))r+=`M${x+4},${y+4}h1v1h-1z`;
  return `<svg viewBox="0 0 ${n+8} ${n+8}" style="width:100%;height:auto;display:block" shape-rendering="crispEdges"><path d="${r}" fill="#000"/></svg>`;}
-const canShare=!!(navigator.mediaDevices&&navigator.mediaDevices.getDisplayMedia);
-const params=new URLSearchParams(location.search);
-if(params.get("oda")) student(params.get("oda"));
-$("joinBtn").onclick=()=>{const c=$("codeIn").value.replace(/\D/g,""); if(c.length===4) student(c);};
-$("hostBtn").onclick=host;
-
-function host(){
-  show("sHost");
-  const code=String(Math.floor(1000+Math.random()*9000));
-  const url=location.origin+location.pathname+"?oda="+code;
-  $("codeShow").textContent=code; $("hCode").textContent="Oda "+code; $("qr").innerHTML=qrSvg(url);
-  if(!canShare){$("shareBtn").disabled=true;$("shareBtn").style.opacity=.5;
-    $("hNote").innerHTML="Bu cihazın tarayıcısı ekran paylaşımına izin vermiyor (iPad ve Android tabletlerde tarayıcılar bu izni vermez).<br><br>Çözüm: odayı <b>bilgisayardan</b> (Chrome/Edge/Safari) aç. Tabletin ekranını bilgisayara yansıt (iPad → Mac: Denetim Merkezi → Ekran Yansıtma → Mac'in), sonra burada Ekranı paylaş'a basıp o pencereyi seç.";}
-  else $("hNote").innerHTML="Öğrenciler katılsın, sonra <b>Ekranı paylaş</b>'a bas. QR, paylaşım sırasında da sağ üstteki oda kodundan görülebilir.";
-  const viewers=new Map(); // peerId -> {conn, call}
-  let stream=null;
-  const peer=new Peer(PREFIX+code,{config:ICE,debug:1});
-  peer.on("open",()=>$("net").textContent="Oda açık · öğrenciler katılabilir");
-  peer.on("error",e=>$("net").textContent="Bağlantı hatası: "+e.type);
-  peer.on("disconnected",()=>{try{peer.reconnect();}catch(e){}});
-  peer.on("connection",c=>{
-    c.on("open",()=>{viewers.set(c.peer,{conn:c,call:null});upd(); if(stream) callOne(c.peer); else c.send({t:"wait"});});
-    const drop=()=>{const v=viewers.get(c.peer);if(v&&v.call)try{v.call.close();}catch(e){} viewers.delete(c.peer);upd();};
-    c.on("close",drop); c.on("error",drop);
-  });
-  function upd(){$("hCnt").textContent=viewers.size+" öğrenci";}
-  function callOne(id){const v=viewers.get(id);if(!v||!stream)return;
-    try{if(v.call)v.call.close();}catch(e){}
-    const call=peer.call(id,stream); v.call=call;
-    // bant genişliğini sınırla (30 kişi için)
-    const lim=()=>{try{const pc=call.peerConnection;if(!pc)return;pc.getSenders().forEach(s=>{if(s.track&&s.track.kind==="video"){const p=s.getParameters();p.encodings=p.encodings&&p.encodings.length?p.encodings:[{}];p.encodings[0].maxBitrate=600000;p.encodings[0].maxFramerate=10;s.setParameters(p).catch(()=>{});}});}catch(e){}};
-    setTimeout(lim,1500); setTimeout(lim,4000);
-  }
-  $("shareBtn").onclick=async()=>{
-    if(stream){stop();return;}
-    try{stream=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:{ideal:10,max:12},width:{max:1600},height:{max:1000}},audio:false});}catch(e){return;}
-    const tr=stream.getVideoTracks()[0]; try{tr.contentHint="detail";}catch(e){}
-    tr.onended=stop;
-    $("hVid").srcObject=stream; $("hMain").style.display="none"; $("hStage").style.display="flex";
-    $("shareBtn").textContent="⏹ Paylaşımı durdur";
-    for(const id of viewers.keys()) callOne(id);
-  };
-  function stop(){if(!stream)return;stream.getTracks().forEach(t=>t.stop());stream=null;
-    for(const v of viewers.values()){if(v.call)try{v.call.close();}catch(e){} v.call=null; try{v.conn.send({t:"wait"});}catch(e){}}
-    $("hStage").style.display="none";$("hMain").style.display="flex";$("shareBtn").textContent="🖥 Ekranı paylaş";}
-  $("endBtn").onclick=()=>{
-    if($("endBtn").dataset.sure!=="1"){$("endBtn").dataset.sure="1";$("endBtn").textContent="Emin misin? Tekrar bas";setTimeout(()=>{$("endBtn").dataset.sure="";$("endBtn").textContent="Dersi bitir";},4000);return;}
-    for(const v of viewers.values()){try{v.conn.send({t:"end"});}catch(e){}}
-    stop(); setTimeout(()=>{try{peer.destroy();}catch(e){} location.href=location.pathname;},400);
-  };
-  window.addEventListener("beforeunload",()=>{for(const v of viewers.values()){try{v.conn.send({t:"end"});}catch(e){}}});
-}
-
-function student(code){
-  show("sStu");
-  let peer=null, ended=false;
-  const msg=h=>{$("sMsg").innerHTML=h;$("sMsg").style.display="flex";};
-  const vid=$("sVid");
-  function connect(){
-    peer=new Peer(undefined,{config:ICE,debug:1});
-    peer.on("open",()=>{
-      const c=peer.connect(PREFIX+code,{reliable:true});
-      c.on("open",()=>msg("✅ Odaya bağlandın<br><span class='note'>Öğretmen ekranını paylaşınca burada görünecek. Telefonu yan çevirirsen ekran büyür.</span>"));
-      c.on("data",d=>{ if(d&&d.t==="wait"){msg("✅ Odadasın<br><span class='note'>Öğretmen ekranını paylaşmayı bekliyoruz…</span>");}
-        if(d&&d.t==="end"){ended=true;try{peer.destroy();}catch(e){} vid.srcObject=null; msg("Ders bitti 👋<br><span class='note'>Görüşmek üzere!</span>");} });
-      c.on("close",()=>{ if(ended)return; msg("<div class='spinner'></div>Bağlantı koptu, yeniden bağlanılıyor…"); setTimeout(()=>{try{peer.destroy();}catch(e){} connect();},2000);});
-    });
-    peer.on("call",call=>{call.answer();
-      call.on("stream",st=>{vid.srcObject=st; vid.play().catch(()=>{}); $("sMsg").style.display="none";});
-      call.on("close",()=>{ if(!ended) msg("✅ Odadasın<br><span class='note'>Öğretmen ekranını paylaşmayı bekliyoruz…</span>");});
-    });
-    peer.on("error",e=>{ if(ended)return;
-      if(e.type==="peer-unavailable") msg("Oda bulunamadı<br><span class='note'>Kodu kontrol et ya da QR'ı tekrar okut.</span><p style='margin-top:14px'><a href='ders.html'>Geri dön</a></p>");
-      else setTimeout(()=>{try{peer.destroy();}catch(x){} connect();},2500);});
-  }
-  connect();
-  vid.addEventListener("click",()=>{try{(vid.requestFullscreen||vid.webkitEnterFullscreen||function(){}).call(vid);}catch(e){}});
-}
+function show(u){u=u.trim(); if(!/^https?:\/\//.test(u)) u="https://"+u;
+ $("qr").innerHTML=qrSvg(u); $("lnkShow").textContent=u; $("qrBox").style.display="flex";
+ try{localStorage.setItem("dersLink",u);}catch(e){} }
+$("go").onclick=()=>{ if($("lnk").value.trim()) show($("lnk").value); };
+$("lnk").addEventListener("keydown",e=>{if(e.key==="Enter")$("go").click();});
+try{const s=localStorage.getItem("dersLink"); if(s){$("lnk").value=s; show(s);}}catch(e){}
 }
 </script></body></html>
