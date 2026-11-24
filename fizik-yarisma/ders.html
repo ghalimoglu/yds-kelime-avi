@@ -1,114 +1,29 @@
 <!DOCTYPE html>
-<html lang="tr">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Fizik I Canlı Ders</title>
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800;900&display=swap" rel="stylesheet">
+<html lang="tr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Fizik I · Ders</title>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@600;800;900&display=swap" rel="stylesheet">
 <style>
-:root{--mor:#46178f;--mor2:#25076b;--yesil:#26890c;--kirmizi:#e21b3c;--mavi:#1368ce}
 *{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%;overscroll-behavior:none}
-body{font-family:Montserrat,Arial,sans-serif;background:var(--mor);color:#fff;overflow:hidden;touch-action:none}
-.screen{display:none;height:100vh;height:100dvh;flex-direction:column}
-.screen.on{display:flex}
-.center{align-items:center;justify-content:center;text-align:center;padding:20px;overflow:auto}
-.logo{font-weight:900;font-size:clamp(34px,6vw,64px);text-shadow:0 4px 0 rgba(0,0,0,.25)}
-.card{background:#fff;color:#333;border-radius:8px;padding:22px;box-shadow:0 4px 0 rgba(0,0,0,.25);width:min(440px,92vw)}
-input{width:100%;font:700 20px Montserrat,Arial;padding:14px;border:2px solid #ccc;border-radius:4px;text-align:center;margin-bottom:12px}
-.btn{border:0;cursor:pointer;font:800 18px Montserrat,Arial;padding:12px 20px;border-radius:4px;background:#333;color:#fff;box-shadow:0 4px 0 rgba(0,0,0,.35);min-height:48px}
-.btn.w{width:100%}.btn.green{background:var(--yesil)}.btn.light{background:#fff;color:var(--mor)}
-/* host bar */
-.top{display:flex;align-items:center;gap:8px;padding:8px 10px;background:var(--mor2);flex-wrap:wrap}
-.top .grow{flex:1}
-.tool{border:0;background:rgba(255,255,255,.12);color:#fff;font:800 15px Montserrat,Arial;border-radius:6px;min-width:44px;height:44px;padding:0 12px;cursor:pointer}
-.tool.on{background:#fff;color:var(--mor)}
-.sw{width:36px;height:36px;border-radius:50%;border:3px solid rgba(255,255,255,.4);cursor:pointer}
-.sw.on{border-color:#fff;box-shadow:0 0 0 2px var(--mor2),0 0 0 4px #fff}
-.pill{background:rgba(255,255,255,.15);border-radius:20px;padding:6px 12px;font-weight:800;font-size:14px;white-space:nowrap}
-.stage{flex:1;position:relative;display:flex;align-items:center;justify-content:center;background:#2a0b63;overflow:hidden}
-.paper{position:relative;background:#fff;box-shadow:0 6px 30px rgba(0,0,0,.4)}
-.paper canvas{position:absolute;inset:0;width:100%;height:100%}
-#hVideo,#sVideo{max-width:100%;max-height:100%;background:#000;display:none}
-.modal{position:fixed;inset:0;background:rgba(10,0,30,.75);display:none;align-items:center;justify-content:center;z-index:9}
-.modal.on{display:flex}
-.joinbox{background:#fff;color:#333;border-radius:10px;padding:22px;text-align:center;width:min(420px,92vw)}
-.pin{font-size:52px;font-weight:900;letter-spacing:4px}
-.url{font-size:12px;word-break:break-all;color:#666}
-.msg{font-weight:800;font-size:20px;opacity:.9;padding:20px;text-align:center}
-.spinner{width:54px;height:54px;border:6px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp 1s linear infinite;margin:16px auto}
-@keyframes sp{to{transform:rotate(360deg)}}
-.sbar{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:var(--mor2);font-weight:800;font-size:14px}
-.hidden{display:none!important}
-@media (orientation:portrait) and (max-width:700px){#sStu .sbar::after{content:"📱 Telefonu yan çevir, tahta büyür";font-size:12px;opacity:.8}}
-</style>
-</head>
-<body>
-
-<!-- LANDING -->
-<section id="sLand" class="screen center on">
-  <div class="logo">Fizik I · Canlı Ders</div>
-  <p style="font-weight:700;margin:10px 0 24px;opacity:.9">İKÜ Kültür MYO · İnşaat Teknolojisi</p>
-  <div class="card">
-    <h3 style="margin-bottom:10px">Öğrenci</h3>
-    <input id="pinIn" inputmode="numeric" maxlength="4" placeholder="Oda kodu (4 hane)">
-    <button class="btn w" id="joinBtn">Odaya katıl</button>
-    <hr style="margin:18px 0;border:0;border-top:1px solid #ddd">
-    <h3 style="margin-bottom:10px">Öğretmen</h3>
-    <button class="btn w green" id="hostBtn">Dersi başlat</button>
-    <p style="margin-top:14px"><a href="./" style="color:var(--mor);font-weight:800">← Ana sayfa</a></p>
-  </div>
-</section>
-
-<!-- HOST -->
-<section id="sHost" class="screen">
-  <div class="top">
-    <button class="tool on" id="tPen">✏️ Kalem</button>
-    <button class="tool" id="tEraser">🧽 Silgi</button>
-    <span class="sw on" data-c="#111" style="background:#111"></span>
-    <span class="sw" data-c="#1368ce" style="background:#1368ce"></span>
-    <span class="sw" data-c="#e21b3c" style="background:#e21b3c"></span>
-    <span class="sw" data-c="#26890c" style="background:#26890c"></span>
-    <button class="tool" id="tWidth">İnce</button>
-    <button class="tool" id="tUndo">↶ Geri al</button>
-    <button class="tool" id="tClear">Sayfayı temizle</button>
-    <span class="grow"></span>
-    <button class="tool" id="tPrev">◀</button><span class="pill" id="pageLbl">1 / 1</span><button class="tool" id="tNext">▶</button>
-    <button class="tool" id="tNew">+ Boş sayfa</button>
-    <label class="tool" style="display:inline-flex;align-items:center">📄 PDF / Foto<input type="file" id="fileIn" accept="application/pdf,image/*" class="hidden"></label>
-    <button class="tool hidden" id="tScreen">🖥 Ekran paylaş</button>
-    <button class="tool" id="tQR">QR</button>
-    <span class="pill" id="cnt">0 öğrenci</span>
-  </div>
-  <div class="stage" id="hStage">
-    <div class="paper" id="hPaper"><canvas id="hBg"></canvas><canvas id="hInk"></canvas></div>
-    <video id="hVideo" muted playsinline autoplay></video>
-  </div>
-</section>
-
-<!-- STUDENT -->
-<section id="sStu" class="screen">
-  <div class="sbar"><span id="sStatus">Bağlanılıyor…</span><span id="sPage"></span></div>
-  <div class="stage" id="sStage">
-    <div class="paper hidden" id="sPaper"><canvas id="sBg"></canvas><canvas id="sInk"></canvas></div>
-    <video id="sVideo" playsinline autoplay muted></video>
-    <div class="msg" id="sMsg"><div class="spinner"></div>Derse bağlanılıyor…</div>
-  </div>
-</section>
-
-<!-- QR MODAL -->
-<div class="modal" id="qrModal"><div class="joinbox">
-  <div style="color:#666;font-weight:700">QR'ı okutun ya da kodu girin</div>
-  <div id="qr" style="margin:12px auto;width:min(300px,70vw)"></div>
-  <div style="color:#666;font-weight:700">Oda kodu</div>
-  <div class="pin" id="pinShow">····</div>
-  <div class="url" id="urlShow"></div>
-  <div class="url" id="netStat" style="margin-top:6px">Bağlantı kuruluyor…</div>
-  <button class="btn w" style="margin-top:14px" id="qrClose">Tahtaya geç</button>
-</div></div>
-
-<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+body{font-family:Montserrat,Arial,sans-serif;min-height:100vh;color:#fff;background:#1368ce;display:flex;flex-direction:column;align-items:center;padding:24px 16px}
+h1{font-weight:900;font-size:clamp(30px,5vw,52px);text-align:center;text-shadow:0 4px 0 rgba(0,0,0,.2)}
+.card{background:#fff;color:#333;border-radius:12px;padding:22px;width:min(560px,100%);margin-top:20px;box-shadow:0 5px 0 rgba(0,0,0,.25)}
+input{width:100%;font:600 18px Montserrat,Arial;padding:14px;border:2px solid #ccc;border-radius:6px;margin:10px 0}
+.btn{border:0;cursor:pointer;font:800 19px Montserrat,Arial;padding:14px 20px;border-radius:6px;background:#26890c;color:#fff;width:100%;box-shadow:0 4px 0 rgba(0,0,0,.3)}
+.muted{font-size:14px;color:#666;line-height:1.5}
+#qrBox{display:none;flex-direction:column;align-items:center;margin-top:20px;width:min(560px,100%)}
+#qr{background:#fff;padding:16px;border-radius:12px;width:min(440px,86vw)}
+.link{margin-top:12px;font-weight:800;word-break:break-all;text-align:center;font-size:18px}
+a{color:#fff}
+</style></head><body>
+<h1>Fizik I · Ders</h1>
+<div class="card">
+  <b>Toplantı linkini yapıştır</b>
+  <p class="muted">Google Meet (ya da Zoom) linkini buraya yapıştır. Öğrenciler QR'ı okutunca doğrudan o toplantıya girer.</p>
+  <input id="lnk" placeholder="https://meet.google.com/abc-defg-hij" autocomplete="off">
+  <button class="btn" id="go">QR'ı göster</button>
+</div>
+<div id="qrBox"><div id="qr"></div><div class="link" id="lnkShow"></div></div>
+<p style="margin-top:24px"><a href="./">← Ana sayfa</a></p>
 <script>(function(){var M={};function R(n){n=n.replace(/^\.\//,"").replace(/\.js$/,"");if(n===""||n===".")n="index";var m=M[n];if(m.e)return m.e.exports;var module={exports:{}};m.e=module;m.f(module,module.exports,R);return module.exports;}
 M["QR8bitByte"]={f:function(module,exports,require){var QRMode = require('./QRMode');
 
@@ -1358,205 +1273,15 @@ module.exports = QRCode;
 window.QRGen=R("index");window.QRECL=R("QRErrorCorrectLevel");})();</script>
 <script>
 {
-const PREFIX="iku-fizik-ders-";
-const ICE={iceServers:[{urls:"stun:stun.l.google.com:19302"},{urls:"stun:global.stun.twilio.com:3478"},
-  {urls:["turn:openrelay.metered.ca:80","turn:openrelay.metered.ca:443","turn:openrelay.metered.ca:443?transport=tcp"],username:"openrelayproject",credential:"openrelayproject"}]};
 const $=id=>document.getElementById(id);
-function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));}
-const W0=1600,H0=1000;
-
-/* ---------- drawing helpers (normalized coords 0..1) ---------- */
-function drawStroke(ctx,s,w,h){
-  const p=s.p; if(p.length<2)return;
-  ctx.save();
-  ctx.globalCompositeOperation=s.e?"destination-out":"source-over";
-  ctx.strokeStyle=s.c; ctx.lineWidth=s.w*w/1000; ctx.lineCap="round"; ctx.lineJoin="round";
-  ctx.beginPath(); ctx.moveTo(p[0]*w,p[1]*h);
-  if(p.length===2) ctx.lineTo(p[0]*w+0.01,p[1]*h);
-  for(let i=2;i<p.length;i+=2) ctx.lineTo(p[i]*w,p[i+1]*h);
-  ctx.stroke(); ctx.restore();
+function qrSvg(t){const q=new QRGen(-1,QRECL.M);q.addData(t);q.make();const n=q.getModuleCount();let r="";
+ for(let y=0;y<n;y++)for(let x=0;x<n;x++)if(q.isDark(y,x))r+=`M${x+4},${y+4}h1v1h-1z`;
+ return `<svg viewBox="0 0 ${n+8} ${n+8}" style="width:100%;height:auto;display:block" shape-rendering="crispEdges"><path d="${r}" fill="#000"/></svg>`;}
+function show(u){u=u.trim(); if(!/^https?:\/\//.test(u)) u="https://"+u;
+ $("qr").innerHTML=qrSvg(u); $("lnkShow").textContent=u; $("qrBox").style.display="flex";
+ try{localStorage.setItem("dersLink",u);}catch(e){} }
+$("go").onclick=()=>{ if($("lnk").value.trim()) show($("lnk").value); };
+$("lnk").addEventListener("keydown",e=>{if(e.key==="Enter")$("go").click();});
+try{const s=localStorage.getItem("dersLink"); if(s){$("lnk").value=s; show(s);}}catch(e){}
 }
-function fitPaper(stage,paper,pw,ph,bg,ink){
-  const r=stage.getBoundingClientRect(); const sc=Math.min((r.width-16)/pw,(r.height-16)/ph);
-  const cw=Math.max(50,Math.floor(pw*sc)), ch=Math.max(50,Math.floor(ph*sc));
-  paper.style.width=cw+"px"; paper.style.height=ch+"px";
-  const dpr=Math.min(2,window.devicePixelRatio||1);
-  for(const c of [bg,ink]){c.width=cw*dpr;c.height=ch*dpr;}
-  return {w:cw*dpr,h:ch*dpr};
-}
-function paintBg(canvas,page,img){
-  const ctx=canvas.getContext("2d"); ctx.fillStyle="#fff"; ctx.fillRect(0,0,canvas.width,canvas.height);
-  if(img&&img.complete&&img.naturalWidth) ctx.drawImage(img,0,0,canvas.width,canvas.height);
-  else if(!page.bg){ // kareli kağıt
-    ctx.strokeStyle="#e3e8f2"; ctx.lineWidth=1; const step=canvas.width/32;
-    for(let x=step;x<canvas.width;x+=step){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,canvas.height);ctx.stroke();}
-    for(let y=step;y<canvas.height;y+=step){ctx.beginPath();ctx.moveTo(0,y);ctx.lineTo(canvas.width,y);ctx.stroke();}
-  }
-}
-function loadImg(src){return new Promise(r=>{if(!src)return r(null);const i=new Image();i.onload=()=>r(i);i.onerror=()=>r(null);i.src=src;});}
-
-/* ---------- QR ---------- */
-function qrSvg(text){try{const q=new QRGen(-1,QRECL.M);q.addData(text);q.make();const n=q.getModuleCount();let r="";
-  for(let y=0;y<n;y++)for(let x=0;x<n;x++)if(q.isDark(y,x))r+=`M${x+4},${y+4}h1v1h-1z`;
-  return `<svg viewBox="0 0 ${n+8} ${n+8}" style="width:100%;height:auto;background:#fff" shape-rendering="crispEdges"><path d="${r}" fill="#000"/></svg>`;}catch(e){return "QR oluşturulamadı";}}
-
-const params=new URLSearchParams(location.search);
-if(params.get("oda")) startStudent(params.get("oda"));
-$("joinBtn").onclick=()=>{const p=$("pinIn").value.replace(/\D/g,""); if(p.length===4) startStudent(p);};
-$("hostBtn").onclick=startHost;
-
-/* ================= HOST ================= */
-function startHost(){
-  show("sHost");
-  const pin=String(Math.floor(1000+Math.random()*9000));
-  const url=location.origin+location.pathname+"?oda="+pin;
-  $("pinShow").textContent=pin; $("urlShow").textContent=url; $("qr").innerHTML=qrSvg(url);
-  $("qrModal").classList.add("on");
-  $("qrClose").onclick=()=>$("qrModal").classList.remove("on");
-  $("tQR").onclick=()=>$("qrModal").classList.add("on");
-  const conns=new Set(); let stream=null; const calls=new Map();
-  const pages=[{w:W0,h:H0,bg:null,strokes:[]}]; let cur=0; const imgs=new Map();
-  let color="#111", width=4, eraser=false, size={w:1,h:1}, sid=0;
-  const bg=$("hBg"), ink=$("hInk"), ictx=ink.getContext("2d");
-  const peer=new Peer(PREFIX+pin,{config:ICE,debug:1});
-  peer.on("open",()=>$("netStat").textContent="Hazır · öğrenciler katılabilir");
-  peer.on("error",e=>{$("netStat").textContent="Bağlantı hatası: "+e.type+(e.type==="unavailable-id"?" (kod kullanımda, sayfayı yenileyin)":"");});
-  peer.on("disconnected",()=>{try{peer.reconnect();}catch(e){}});
-  peer.on("connection",c=>{
-    c.on("open",()=>{conns.add(c);updCnt();sendPage(c);if(stream)callOne(c.peer);});
-    c.on("close",()=>{conns.delete(c);updCnt();});
-    c.on("error",()=>{conns.delete(c);updCnt();});
-  });
-  function updCnt(){$("cnt").textContent=conns.size+" öğrenci";}
-  function bc(m){for(const c of conns){if(c.open){try{c.send(m);}catch(e){}}}}
-  function pageMsg(){const p=pages[cur];return {t:"page",i:cur,n:pages.length,w:p.w,h:p.h,bg:p.bg,strokes:p.strokes};}
-  function sendPage(c){try{c.send(pageMsg());}catch(e){}}
-  async function render(){
-    const p=pages[cur]; size=fitPaper($("hStage"),$("hPaper"),p.w,p.h,bg,ink);
-    let img=imgs.get(cur); if(p.bg&&!img){img=await loadImg(p.bg);imgs.set(cur,img);}
-    paintBg(bg,p,img); ictx.clearRect(0,0,ink.width,ink.height);
-    for(const s of p.strokes) drawStroke(ictx,s,ink.width,ink.height);
-    $("pageLbl").textContent=(cur+1)+" / "+pages.length;
-  }
-  function goPage(i){cur=Math.max(0,Math.min(pages.length-1,i)); render(); bc(pageMsg());}
-  window.addEventListener("resize",()=>render());
-  render();
-  // tools
-  document.querySelectorAll(".sw").forEach(s=>s.onclick=()=>{document.querySelectorAll(".sw").forEach(x=>x.classList.remove("on"));s.classList.add("on");color=s.dataset.c;setEraser(false);});
-  function setEraser(v){eraser=v;$("tEraser").classList.toggle("on",v);$("tPen").classList.toggle("on",!v);}
-  $("tPen").onclick=()=>setEraser(false); $("tEraser").onclick=()=>setEraser(true);
-  const widths=[[4,"İnce"],[8,"Orta"],[14,"Kalın"]]; let wi=0;
-  $("tWidth").onclick=()=>{wi=(wi+1)%3;width=widths[wi][0];$("tWidth").textContent=widths[wi][1];};
-  $("tUndo").onclick=()=>{const p=pages[cur];if(!p.strokes.length)return;const s=p.strokes.pop();bc({t:"undo",i:cur,id:s.id});render();};
-  $("tClear").onclick=()=>{pages[cur].strokes=[];bc({t:"clear",i:cur});render();};
-  $("tPrev").onclick=()=>goPage(cur-1); $("tNext").onclick=()=>goPage(cur+1);
-  $("tNew").onclick=()=>{pages.splice(cur+1,0,{w:W0,h:H0,bg:null,strokes:[]});shiftImgs(cur+1,1);goPage(cur+1);};
-  function shiftImgs(from,k){const e=[...imgs.entries()].sort((a,b)=>b[0]-a[0]);for(const [i,v] of e){if(i>=from){imgs.delete(i);imgs.set(i+k,v);}}}
-  // file import
-  $("fileIn").onchange=async e=>{
-    const f=e.target.files[0]; e.target.value=""; if(!f)return;
-    const added=[];
-    if(f.type==="application/pdf"){
-      if(!window.pdfjsLib){alertBox("PDF okuyucu yüklenemedi");return;}
-      pdfjsLib.GlobalWorkerOptions.workerSrc="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
-      $("pageLbl").textContent="PDF açılıyor…";
-      const pdf=await pdfjsLib.getDocument({data:await f.arrayBuffer()}).promise;
-      for(let n=1;n<=pdf.numPages;n++){const pg=await pdf.getPage(n);const vp0=pg.getViewport({scale:1});const sc=1500/vp0.width;const vp=pg.getViewport({scale:sc});
-        const c=document.createElement("canvas");c.width=vp.width;c.height=vp.height;await pg.render({canvasContext:c.getContext("2d"),viewport:vp}).promise;
-        added.push({w:vp.width,h:vp.height,bg:c.toDataURL("image/jpeg",0.82),strokes:[]});
-        $("pageLbl").textContent="PDF "+n+"/"+pdf.numPages;}
-    } else {
-      const img=await loadImg(URL.createObjectURL(f)); if(!img)return;
-      const sc=Math.min(1,1600/img.naturalWidth); const c=document.createElement("canvas");c.width=img.naturalWidth*sc;c.height=img.naturalHeight*sc;
-      c.getContext("2d").drawImage(img,0,0,c.width,c.height); added.push({w:c.width,h:c.height,bg:c.toDataURL("image/jpeg",0.82),strokes:[]});
-    }
-    const at=pages[cur].strokes.length||pages[cur].bg?cur+1:cur;
-    if(at===cur) pages.splice(cur,1,...added); else {pages.splice(at,0,...added);}
-    imgs.clear(); goPage(at);
-  };
-  function alertBox(t){$("pageLbl").textContent=t;}
-  // pointer drawing (Apple Pencil: kalem algılanınca parmak dokunuşu çizmez)
-  let penSeen=false, curS=null, buf=[], flushT=null;
-  function pt(e){const r=ink.getBoundingClientRect();return [Math.round((e.clientX-r.left)/r.width*10000)/10000,Math.round((e.clientY-r.top)/r.height*10000)/10000];}
-  ink.addEventListener("pointerdown",e=>{
-    if(e.pointerType==="pen")penSeen=true; if(penSeen&&e.pointerType==="touch")return;
-    ink.setPointerCapture(e.pointerId);
-    curS={id:++sid,c:color,w:eraser?width*5:width,e:eraser,p:pt(e)}; pages[cur].strokes.push(curS);
-    bc({t:"sb",i:cur,s:{id:curS.id,c:curS.c,w:curS.w,e:curS.e,p:curS.p}}); buf=[];
-    drawStroke(ictx,curS,ink.width,ink.height);
-  });
-  ink.addEventListener("pointermove",e=>{
-    if(!curS)return; const evs=e.getCoalescedEvents?e.getCoalescedEvents():[e];
-    const before=curS.p.length;
-    for(const ev of evs){const q=pt(ev);curS.p.push(q[0],q[1]);buf.push(q[0],q[1]);}
-    const seg={c:curS.c,w:curS.w,e:curS.e,p:curS.p.slice(Math.max(0,before-2))};
-    drawStroke(ictx,seg,ink.width,ink.height);
-    if(!flushT) flushT=setTimeout(flush,40);
-  });
-  function flush(){flushT=null; if(curS&&buf.length){bc({t:"sa",i:cur,id:curS.id,p:buf});buf=[];}}
-  const end=()=>{if(!curS)return; flush(); curS=null;};
-  ink.addEventListener("pointerup",end); ink.addEventListener("pointercancel",end); ink.addEventListener("pointerleave",end);
-  // optional screen share (bilgisayarda)
-  if(navigator.mediaDevices&&navigator.mediaDevices.getDisplayMedia){
-    $("tScreen").classList.remove("hidden");
-    $("tScreen").onclick=async()=>{
-      if(stream){stopShare();return;}
-      try{stream=await navigator.mediaDevices.getDisplayMedia({video:{frameRate:10,width:{max:1600}},audio:false});}catch(e){return;}
-      $("tScreen").classList.add("on");$("tScreen").textContent="⏹ Paylaşımı durdur";
-      $("hVideo").srcObject=stream;$("hVideo").style.display="block";$("hPaper").style.display="none";
-      stream.getVideoTracks()[0].onended=stopShare;
-      for(const c of conns) callOne(c.peer);
-      bc({t:"screen",on:true});
-    };
-  }
-  function callOne(id){try{const call=peer.call(id,stream);calls.set(id,call);}catch(e){}}
-  function stopShare(){if(!stream)return;stream.getTracks().forEach(t=>t.stop());stream=null;for(const c of calls.values()){try{c.close();}catch(e){}}calls.clear();
-    $("tScreen").classList.remove("on");$("tScreen").textContent="🖥 Ekran paylaş";$("hVideo").style.display="none";$("hPaper").style.display="";bc({t:"screen",on:false});render();}
-}
-
-/* ================= STUDENT ================= */
-function startStudent(pin){
-  show("sStu");
-  let page=null, img=null, size={w:1,h:1}, peer=null, conn=null, screenOn=false;
-  const bg=$("sBg"), ink=$("sInk"), ictx=ink.getContext("2d");
-  function msg(html){$("sMsg").innerHTML=html;$("sMsg").classList.remove("hidden");$("sPaper").classList.add("hidden");$("sVideo").style.display="none";}
-  async function render(){
-    if(!page)return; $("sMsg").classList.add("hidden");
-    if(screenOn){$("sPaper").classList.add("hidden");$("sVideo").style.display="block";return;}
-    $("sVideo").style.display="none"; $("sPaper").classList.remove("hidden");
-    size=fitPaper($("sStage"),$("sPaper"),page.w,page.h,bg,ink);
-    paintBg(bg,page,img); ictx.clearRect(0,0,ink.width,ink.height);
-    for(const s of page.strokes) drawStroke(ictx,s,ink.width,ink.height);
-    $("sPage").textContent="Sayfa "+(page.i+1)+" / "+page.n;
-  }
-  window.addEventListener("resize",render);
-  function connect(){
-    peer=new Peer(undefined,{config:ICE,debug:1});
-    peer.on("open",()=>{
-      conn=peer.connect(PREFIX+pin,{reliable:true});
-      conn.on("open",()=>{$("sStatus").textContent="✅ Derse bağlandın · Oda "+pin;});
-      conn.on("data",onData);
-      conn.on("close",()=>{$("sStatus").textContent="Bağlantı koptu, yeniden bağlanılıyor…";setTimeout(()=>{try{peer.destroy();}catch(e){}connect();},2000);});
-    });
-    peer.on("call",call=>{call.answer();call.on("stream",st=>{$("sVideo").srcObject=st;screenOn=true;$("sVideo").play().catch(()=>{});render();});call.on("close",()=>{screenOn=false;render();});});
-    peer.on("error",e=>{
-      if(e.type==="peer-unavailable") msg('<div style="font-size:26px">Oda bulunamadı</div><p style="margin-top:8px;font-weight:600">Kodu kontrol et ya da tahtadaki QR\'ı tekrar okut.</p><p style="margin-top:16px"><a href="ders.html" style="color:#fff">Geri dön</a></p>');
-      else setTimeout(()=>{try{peer.destroy();}catch(x){}connect();},2500);
-    });
-  }
-  connect();
-  async function onData(d){
-    if(!d||typeof d!=="object")return;
-    if(d.t==="page"){page={i:d.i,n:d.n,w:d.w,h:d.h,bg:d.bg,strokes:d.strokes||[]}; img=await loadImg(d.bg); render(); return;}
-    if(!page||d.i!==page.i){ if(d.t==="screen"){screenOn=d.on;render();} return;}
-    if(d.t==="sb"){page.strokes.push(d.s); drawStroke(ictx,d.s,ink.width,ink.height);}
-    else if(d.t==="sa"){const s=page.strokes.find(x=>x.id===d.id); if(!s)return; const from=Math.max(0,s.p.length-2); s.p.push(...d.p); drawStroke(ictx,{c:s.c,w:s.w,e:s.e,p:s.p.slice(from)},ink.width,ink.height);}
-    else if(d.t==="undo"){page.strokes=page.strokes.filter(x=>x.id!==d.id);render();}
-    else if(d.t==="clear"){page.strokes=[];render();}
-    else if(d.t==="screen"){screenOn=d.on;render();}
-  }
-}
-}
-</script>
-</body>
-</html>
+</script></body></html>
