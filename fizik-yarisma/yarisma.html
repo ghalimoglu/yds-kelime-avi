@@ -1,0 +1,1626 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1">
+<title>Fizik I Yarışma</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--mor:#46178f;--mor2:#25076b;--kirmizi:#e21b3c;--mavi:#1368ce;--sari:#d89e00;--yesil:#26890c;--gri:#f2f2f2}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:Montserrat,Arial,sans-serif;background:var(--mor);color:#fff;overflow-x:hidden}
+.bg{position:fixed;inset:0;z-index:-1;background:radial-gradient(circle at 20% 15%,#5c2bb0 0,transparent 40%),radial-gradient(circle at 85% 90%,#2b0a7a 0,transparent 45%),var(--mor)}
+.bg i{position:absolute;opacity:.08;background:#fff}
+.screen{display:none;min-height:100vh;flex-direction:column}
+.screen.on{display:flex}
+.center{align-items:center;justify-content:center;text-align:center;padding:24px}
+.logo{font-weight:900;font-size:clamp(40px,7vw,84px);letter-spacing:-1px;text-shadow:0 5px 0 rgba(0,0,0,.25)}
+.card{background:#fff;color:#333;border-radius:8px;padding:22px;box-shadow:0 4px 0 rgba(0,0,0,.25);width:min(420px,92vw)}
+.card h3{margin-bottom:12px}
+input,select{width:100%;font:700 20px Montserrat,Arial;padding:14px;border:2px solid #ccc;border-radius:4px;text-align:center;margin-bottom:12px;color:#333}
+.btn{display:inline-block;border:0;cursor:pointer;font:800 20px Montserrat,Arial;padding:14px 26px;border-radius:4px;background:#333;color:#fff;box-shadow:0 4px 0 rgba(0,0,0,.35);min-height:52px}
+.btn:active{transform:translateY(3px);box-shadow:0 1px 0 rgba(0,0,0,.35)}
+.btn.w{width:100%}
+.btn.light{background:#fff;color:var(--mor)}
+.btn.green{background:var(--yesil)}
+.muted{opacity:.8;font-size:14px;font-weight:500}
+/* HOST lobby */
+.lobby{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.4fr);gap:24px;padding:24px;flex:1}
+.joinbox{background:#fff;color:#333;border-radius:10px;padding:20px;text-align:center}
+.joinbox .pin{font-size:56px;font-weight:900;letter-spacing:4px;color:#333}
+#qr{display:flex;justify-content:center;margin:14px 0}
+#qr img,#qr canvas{width:min(300px,100%)!important;height:auto!important}
+.url{font-size:13px;word-break:break-all;color:#555}
+.teams{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;align-content:start}
+.team{border-radius:8px;padding:12px;min-height:120px;box-shadow:0 4px 0 rgba(0,0,0,.25)}
+.team h4{font-size:20px;font-weight:900;display:flex;justify-content:space-between}
+.team .names{margin-top:8px;display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:rgba(255,255,255,.25);padding:4px 10px;border-radius:20px;font-weight:700;font-size:15px}
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 24px;background:rgba(0,0,0,.2);flex-wrap:wrap}
+.bar .count{font-weight:900;font-size:22px}
+/* HOST question */
+.qhead{background:#fff;color:#333;text-align:center;font-weight:800;font-size:clamp(22px,3.2vw,42px);padding:22px 30px;box-shadow:0 3px 0 rgba(0,0,0,.15);min-height:110px;display:flex;align-items:center;justify-content:center}
+.qmid{flex:1;display:flex;align-items:center;justify-content:space-between;padding:20px 40px}
+.timer{width:130px;height:130px;border-radius:50%;background:var(--mor2);display:flex;align-items:center;justify-content:center;font-size:56px;font-weight:900;box-shadow:0 5px 0 rgba(0,0,0,.3)}
+.timer.low{background:var(--kirmizi)}
+.anscount{text-align:center;font-weight:900;font-size:44px}
+.anscount span{display:block;font-size:18px;font-weight:700}
+.qnum{font-weight:800;font-size:18px;opacity:.9}
+.grid4{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px}
+.opt{display:flex;align-items:center;gap:16px;border-radius:5px;padding:18px 20px;font-weight:800;font-size:clamp(18px,2.2vw,30px);min-height:90px;box-shadow:0 4px 0 rgba(0,0,0,.3);position:relative;transition:opacity .3s}
+.opt svg{flex:none;width:44px;height:44px}
+.o0{background:var(--kirmizi)}.o1{background:var(--mavi)}.o2{background:var(--sari)}.o3{background:var(--yesil)}
+.opt.dim{opacity:.25}
+.opt .tick{margin-left:auto;font-size:36px}
+.qimg{background:#fff;border-radius:10px;padding:10px;box-shadow:0 4px 0 rgba(0,0,0,.25);width:min(640px,56vw)}.qimg svg{display:block;width:100%;height:auto;max-height:40vh}
+.tm{font-size:17px;font-weight:700;color:#666;margin-left:10px}.tm.ok{color:var(--yesil)}.tm.no{color:var(--kirmizi)}
+.dist{display:flex;align-items:flex-end;justify-content:center;gap:28px;height:220px}
+.dcol{width:90px;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%}
+.dcol .b{width:100%;border-radius:4px 4px 0 0;min-height:6px;transition:height .6s}
+.dcol .n{font-weight:900;font-size:28px;margin-bottom:6px}
+.dcol .s{width:100%;height:46px;display:flex;align-items:center;justify-content:center;border-radius:0 0 4px 4px}
+/* scoreboard */
+.board{width:min(900px,94vw);margin:20px auto;display:flex;flex-direction:column;gap:10px}
+.row{display:flex;align-items:center;justify-content:space-between;background:#fff;color:#333;border-radius:6px;padding:16px 22px;font-weight:900;font-size:26px;box-shadow:0 4px 0 rgba(0,0,0,.2)}
+.row .sw{width:22px;height:22px;border-radius:4px;display:inline-block;margin-right:12px;vertical-align:middle}
+.title{font-weight:900;font-size:clamp(30px,4vw,52px);text-align:center;margin-top:22px;text-shadow:0 4px 0 rgba(0,0,0,.25)}
+.sub{font-weight:800;font-size:22px;text-align:center;opacity:.9;margin-top:6px}
+/* podium */
+.podium{display:flex;align-items:flex-end;justify-content:center;gap:16px;margin-top:30px;flex:1}
+.pd{width:min(240px,28vw);text-align:center;display:flex;flex-direction:column;justify-content:flex-end}
+.pd .nm{font-weight:900;font-size:26px;margin-bottom:10px}
+.pd .blk{background:var(--mor2);border-radius:8px 8px 0 0;box-shadow:0 -4px 0 rgba(255,255,255,.15) inset;display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:14px;font-weight:900}
+.pd .rk{font-size:64px}
+.pd .pt{font-size:20px;opacity:.9}
+.pd.p1 .blk{height:300px;background:#f7c623;color:#4a3500}
+.pd.p2 .blk{height:220px;background:#c9ced6;color:#333}
+.pd.p3 .blk{height:160px;background:#cd8b4a;color:#3b1d00}
+.pd{animation:rise .8s ease-out both}.pd.p2{animation-delay:.6s}.pd.p1{animation-delay:1.2s}
+@keyframes rise{from{transform:translateY(80px);opacity:0}}
+@media (prefers-reduced-motion:reduce){.pd{animation:none}}
+/* PLAYER */
+.pgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px;flex:1}
+.pbtn{border:0;border-radius:6px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;box-shadow:0 5px 0 rgba(0,0,0,.3);color:#fff;font:800 16px Montserrat,Arial;padding:10px;cursor:pointer;min-height:140px}
+.pbtn svg{width:64px;height:64px}
+.pbtn:active{transform:translateY(3px)}
+.pinfo{display:flex;justify-content:space-between;padding:10px 14px;font-weight:800;background:rgba(0,0,0,.2)}
+.big{font-size:44px;font-weight:900}
+.res-ok{background:var(--yesil)!important}.res-no{background:var(--kirmizi)!important}
+.tpick{display:grid;gap:10px;margin-bottom:12px}
+.tpick button{border:3px solid transparent;color:#fff;font:800 18px Montserrat,Arial;padding:14px;border-radius:6px;cursor:pointer}
+.tpick button.sel{border-color:#333;outline:3px solid #fff;outline-offset:-6px}
+.spinner{width:60px;height:60px;border:6px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp 1s linear infinite;margin:20px auto}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media(max-width:800px){.lobby{grid-template-columns:1fr}.qmid{padding:14px}.timer{width:90px;height:90px;font-size:38px}.grid4{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="bg"></div>
+
+<!-- LANDING -->
+<section id="sLanding" class="screen center on">
+  <div class="logo">Fizik I Yarışma</div>
+  <p class="sub" style="margin-bottom:28px">İKÜ Kültür MYO · İnşaat Teknolojisi</p>
+  <div class="card" id="landCard">
+    <h3>Öğrenci misin?</h3>
+    <input id="pinIn" inputmode="numeric" placeholder="Oyun PIN'i" maxlength="6">
+    <button class="btn w" id="goJoin">Katıl</button>
+    <hr style="margin:20px 0;border:0;border-top:1px solid #ddd">
+    <h3>Öğretmen</h3>
+    <select id="setSel"></select>
+    <button class="btn w green" id="goHost">Yarışmayı başlat</button>
+  </div>
+</section>
+
+<!-- HOST LOBBY -->
+<section id="sLobby" class="screen">
+  <div class="bar"><div class="qnum" id="lobbySet"></div>
+    <div>Takım sayısı:
+      <select id="teamN" style="width:auto;display:inline-block;margin:0 0 0 8px;padding:6px 10px;font-size:18px">
+        <option>2</option><option>3</option><option selected>4</option><option>5</option><option>6</option></select></div>
+  </div>
+  <div class="lobby">
+    <div class="joinbox">
+      <div class="muted" style="color:#555">QR'ı okut ya da adrese git, PIN'i gir</div>
+      <div id="qr"></div>
+      <div class="muted" style="color:#555">Oyun PIN'i</div>
+      <div class="pin" id="pinShow">······</div>
+      <div class="url" id="urlShow"></div>
+      <div class="muted" id="netStat" style="color:#888;margin-top:8px">Bağlantı kuruluyor…</div>
+    </div>
+    <div class="teams" id="teamsBox"></div>
+  </div>
+  <div class="bar"><div class="count" id="pCount">0 oyuncu</div><button class="btn light" id="startBtn">Başlat ▶</button></div>
+</section>
+
+<!-- HOST QUESTION -->
+<section id="sQ" class="screen">
+  <div class="qhead" id="qText"></div>
+  <div class="qmid">
+    <div class="timer" id="timer">20</div>
+    <div id="midBox" style="flex:1;display:flex;justify-content:center"></div>
+    <div class="anscount" id="ansCount">0<span>cevap</span></div>
+  </div>
+  <div class="bar" style="background:none;padding:0 14px"><div class="qnum" id="qNum"></div><button class="btn light" id="qNext" style="display:none">Sıralama ▶</button><button class="btn" id="qSkip">Süreyi bitir</button></div>
+  <div class="grid4" id="qOpts"></div>
+</section>
+
+<!-- HOST BOARD -->
+<section id="sBoard" class="screen">
+  <div class="title">Takım sıralaması</div>
+  <div class="sub" id="boardSub"></div>
+  <div class="board" id="boardTeams"></div>
+  <div class="sub" style="margin-top:10px">Oyuncular · bu sorudaki cevap süresi</div>
+  <div class="board" id="boardPlayers"></div>
+  <div class="bar" style="margin-top:auto;justify-content:flex-end"><button class="btn light" id="boardNext">Sonraki soru ▶</button></div>
+</section>
+
+<!-- HOST FINAL -->
+<section id="sFinal" class="screen">
+  <div class="title">🏆 Kazanan takımlar</div>
+  <div class="podium" id="podium"></div>
+  <div class="sub" style="margin:16px 0 4px">En iyi oyuncular</div>
+  <div class="board" id="finalPlayers" style="margin-top:6px"></div>
+</section>
+
+<!-- PLAYER JOIN -->
+<section id="sPJoin" class="screen center">
+  <div class="logo" style="font-size:40px">Fizik I Yarışma</div>
+  <div class="card" style="margin-top:20px">
+    <h3>Adını yaz, takımını seç</h3>
+    <input id="nameIn" placeholder="Adın" maxlength="18" autocomplete="off">
+    <div class="tpick" id="tPick"></div>
+    <button class="btn w" id="pJoinBtn">Hazırım!</button>
+    <div class="muted" id="pJoinMsg" style="color:#c00;margin-top:10px"></div>
+  </div>
+</section>
+
+<!-- PLAYER WAIT / MSG -->
+<section id="sPMsg" class="screen">
+  <div class="pinfo"><span id="pName"></span><span id="pScore">0</span></div>
+  <div class="center" style="flex:1;display:flex;flex-direction:column" id="pMsgBox"></div>
+</section>
+
+<!-- PLAYER ANSWER -->
+<section id="sPAns" class="screen">
+  <div class="pinfo"><span id="pQn"></span><span id="pName2"></span></div>
+  <div class="pgrid" id="pBtns"></div>
+</section>
+
+<script src="https://unpkg.com/peerjs@1.5.4/dist/peerjs.min.js"></script>
+<script>(function(){var M={};function R(n){n=n.replace(/^\.\//,"").replace(/\.js$/,"");if(n===""||n===".")n="index";var m=M[n];if(m.e)return m.e.exports;var module={exports:{}};m.e=module;m.f(module,module.exports,R);return module.exports;}
+M["QR8bitByte"]={f:function(module,exports,require){var QRMode = require('./QRMode');
+
+function QR8bitByte(data) {
+	this.mode = QRMode.MODE_8BIT_BYTE;
+	this.data = data;
+}
+
+QR8bitByte.prototype = {
+
+	getLength : function() {
+		return this.data.length;
+	},
+	
+	write : function(buffer) {
+		for (var i = 0; i < this.data.length; i++) {
+			// not JIS ...
+			buffer.put(this.data.charCodeAt(i), 8);
+		}
+	}
+};
+
+module.exports = QR8bitByte;
+
+}};
+M["QRBitBuffer"]={f:function(module,exports,require){function QRBitBuffer() {
+	this.buffer = [];
+	this.length = 0;
+}
+
+QRBitBuffer.prototype = {
+
+	get : function(index) {
+		var bufIndex = Math.floor(index / 8);
+		return ( (this.buffer[bufIndex] >>> (7 - index % 8) ) & 1) == 1;
+	},
+	
+	put : function(num, length) {
+		for (var i = 0; i < length; i++) {
+			this.putBit( ( (num >>> (length - i - 1) ) & 1) == 1);
+		}
+	},
+	
+	getLengthInBits : function() {
+		return this.length;
+	},
+	
+	putBit : function(bit) {
+	
+		var bufIndex = Math.floor(this.length / 8);
+		if (this.buffer.length <= bufIndex) {
+			this.buffer.push(0);
+		}
+	
+		if (bit) {
+			this.buffer[bufIndex] |= (0x80 >>> (this.length % 8) );
+		}
+	
+		this.length++;
+	}
+};
+
+module.exports = QRBitBuffer;
+
+}};
+M["QRErrorCorrectLevel"]={f:function(module,exports,require){module.exports = {
+	L : 1,
+	M : 0,
+	Q : 3,
+	H : 2
+};
+
+
+}};
+M["QRMaskPattern"]={f:function(module,exports,require){module.exports = {
+	PATTERN000 : 0,
+	PATTERN001 : 1,
+	PATTERN010 : 2,
+	PATTERN011 : 3,
+	PATTERN100 : 4,
+	PATTERN101 : 5,
+	PATTERN110 : 6,
+	PATTERN111 : 7
+};
+
+}};
+M["QRMath"]={f:function(module,exports,require){var QRMath = {
+
+	glog : function(n) {
+	
+		if (n < 1) {
+			throw new Error("glog(" + n + ")");
+		}
+		
+		return QRMath.LOG_TABLE[n];
+	},
+	
+	gexp : function(n) {
+	
+		while (n < 0) {
+			n += 255;
+		}
+	
+		while (n >= 256) {
+			n -= 255;
+		}
+	
+		return QRMath.EXP_TABLE[n];
+	},
+	
+	EXP_TABLE : new Array(256),
+	
+	LOG_TABLE : new Array(256)
+
+};
+	
+for (var i = 0; i < 8; i++) {
+	QRMath.EXP_TABLE[i] = 1 << i;
+}
+for (var i = 8; i < 256; i++) {
+	QRMath.EXP_TABLE[i] = QRMath.EXP_TABLE[i - 4]
+		^ QRMath.EXP_TABLE[i - 5]
+		^ QRMath.EXP_TABLE[i - 6]
+		^ QRMath.EXP_TABLE[i - 8];
+}
+for (var i = 0; i < 255; i++) {
+	QRMath.LOG_TABLE[QRMath.EXP_TABLE[i] ] = i;
+}
+
+module.exports = QRMath;
+
+}};
+M["QRMode"]={f:function(module,exports,require){module.exports = {
+    MODE_NUMBER :       1 << 0,
+    MODE_ALPHA_NUM :    1 << 1,
+    MODE_8BIT_BYTE :    1 << 2,
+    MODE_KANJI :        1 << 3
+};
+
+}};
+M["QRPolynomial"]={f:function(module,exports,require){var QRMath = require('./QRMath');
+
+function QRPolynomial(num, shift) {
+	if (num.length === undefined) {
+		throw new Error(num.length + "/" + shift);
+	}
+
+	var offset = 0;
+
+	while (offset < num.length && num[offset] === 0) {
+		offset++;
+	}
+
+	this.num = new Array(num.length - offset + shift);
+	for (var i = 0; i < num.length - offset; i++) {
+		this.num[i] = num[i + offset];
+	}
+}
+
+QRPolynomial.prototype = {
+
+	get : function(index) {
+		return this.num[index];
+	},
+	
+	getLength : function() {
+		return this.num.length;
+	},
+	
+	multiply : function(e) {
+	
+		var num = new Array(this.getLength() + e.getLength() - 1);
+	
+		for (var i = 0; i < this.getLength(); i++) {
+			for (var j = 0; j < e.getLength(); j++) {
+				num[i + j] ^= QRMath.gexp(QRMath.glog(this.get(i) ) + QRMath.glog(e.get(j) ) );
+			}
+		}
+	
+		return new QRPolynomial(num, 0);
+	},
+	
+	mod : function(e) {
+	
+		if (this.getLength() - e.getLength() < 0) {
+			return this;
+		}
+	
+		var ratio = QRMath.glog(this.get(0) ) - QRMath.glog(e.get(0) );
+	
+		var num = new Array(this.getLength() );
+		
+		for (var i = 0; i < this.getLength(); i++) {
+			num[i] = this.get(i);
+		}
+		
+		for (var x = 0; x < e.getLength(); x++) {
+			num[x] ^= QRMath.gexp(QRMath.glog(e.get(x) ) + ratio);
+		}
+	
+		// recursive call
+		return new QRPolynomial(num, 0).mod(e);
+	}
+};
+
+module.exports = QRPolynomial;
+
+}};
+M["QRRSBlock"]={f:function(module,exports,require){var QRErrorCorrectLevel = require('./QRErrorCorrectLevel');
+
+function QRRSBlock(totalCount, dataCount) {
+	this.totalCount = totalCount;
+	this.dataCount  = dataCount;
+}
+
+QRRSBlock.RS_BLOCK_TABLE = [
+
+	// L
+	// M
+	// Q
+	// H
+
+	// 1
+	[1, 26, 19],
+	[1, 26, 16],
+	[1, 26, 13],
+	[1, 26, 9],
+	
+	// 2
+	[1, 44, 34],
+	[1, 44, 28],
+	[1, 44, 22],
+	[1, 44, 16],
+
+	// 3
+	[1, 70, 55],
+	[1, 70, 44],
+	[2, 35, 17],
+	[2, 35, 13],
+
+	// 4		
+	[1, 100, 80],
+	[2, 50, 32],
+	[2, 50, 24],
+	[4, 25, 9],
+	
+	// 5
+	[1, 134, 108],
+	[2, 67, 43],
+	[2, 33, 15, 2, 34, 16],
+	[2, 33, 11, 2, 34, 12],
+	
+	// 6
+	[2, 86, 68],
+	[4, 43, 27],
+	[4, 43, 19],
+	[4, 43, 15],
+	
+	// 7		
+	[2, 98, 78],
+	[4, 49, 31],
+	[2, 32, 14, 4, 33, 15],
+	[4, 39, 13, 1, 40, 14],
+	
+	// 8
+	[2, 121, 97],
+	[2, 60, 38, 2, 61, 39],
+	[4, 40, 18, 2, 41, 19],
+	[4, 40, 14, 2, 41, 15],
+	
+	// 9
+	[2, 146, 116],
+	[3, 58, 36, 2, 59, 37],
+	[4, 36, 16, 4, 37, 17],
+	[4, 36, 12, 4, 37, 13],
+	
+	// 10		
+	[2, 86, 68, 2, 87, 69],
+	[4, 69, 43, 1, 70, 44],
+	[6, 43, 19, 2, 44, 20],
+	[6, 43, 15, 2, 44, 16],
+
+	// 11
+	[4, 101, 81],
+	[1, 80, 50, 4, 81, 51],
+	[4, 50, 22, 4, 51, 23],
+	[3, 36, 12, 8, 37, 13],
+
+	// 12
+	[2, 116, 92, 2, 117, 93],
+	[6, 58, 36, 2, 59, 37],
+	[4, 46, 20, 6, 47, 21],
+	[7, 42, 14, 4, 43, 15],
+
+	// 13
+	[4, 133, 107],
+	[8, 59, 37, 1, 60, 38],
+	[8, 44, 20, 4, 45, 21],
+	[12, 33, 11, 4, 34, 12],
+
+	// 14
+	[3, 145, 115, 1, 146, 116],
+	[4, 64, 40, 5, 65, 41],
+	[11, 36, 16, 5, 37, 17],
+	[11, 36, 12, 5, 37, 13],
+
+	// 15
+	[5, 109, 87, 1, 110, 88],
+	[5, 65, 41, 5, 66, 42],
+	[5, 54, 24, 7, 55, 25],
+	[11, 36, 12],
+
+	// 16
+	[5, 122, 98, 1, 123, 99],
+	[7, 73, 45, 3, 74, 46],
+	[15, 43, 19, 2, 44, 20],
+	[3, 45, 15, 13, 46, 16],
+
+	// 17
+	[1, 135, 107, 5, 136, 108],
+	[10, 74, 46, 1, 75, 47],
+	[1, 50, 22, 15, 51, 23],
+	[2, 42, 14, 17, 43, 15],
+
+	// 18
+	[5, 150, 120, 1, 151, 121],
+	[9, 69, 43, 4, 70, 44],
+	[17, 50, 22, 1, 51, 23],
+	[2, 42, 14, 19, 43, 15],
+
+	// 19
+	[3, 141, 113, 4, 142, 114],
+	[3, 70, 44, 11, 71, 45],
+	[17, 47, 21, 4, 48, 22],
+	[9, 39, 13, 16, 40, 14],
+
+	// 20
+	[3, 135, 107, 5, 136, 108],
+	[3, 67, 41, 13, 68, 42],
+	[15, 54, 24, 5, 55, 25],
+	[15, 43, 15, 10, 44, 16],
+
+	// 21
+	[4, 144, 116, 4, 145, 117],
+	[17, 68, 42],
+	[17, 50, 22, 6, 51, 23],
+	[19, 46, 16, 6, 47, 17],
+
+	// 22
+	[2, 139, 111, 7, 140, 112],
+	[17, 74, 46],
+	[7, 54, 24, 16, 55, 25],
+	[34, 37, 13],
+
+	// 23
+	[4, 151, 121, 5, 152, 122],
+	[4, 75, 47, 14, 76, 48],
+	[11, 54, 24, 14, 55, 25],
+	[16, 45, 15, 14, 46, 16],
+
+	// 24
+	[6, 147, 117, 4, 148, 118],
+	[6, 73, 45, 14, 74, 46],
+	[11, 54, 24, 16, 55, 25],
+	[30, 46, 16, 2, 47, 17],
+
+	// 25
+	[8, 132, 106, 4, 133, 107],
+	[8, 75, 47, 13, 76, 48],
+	[7, 54, 24, 22, 55, 25],
+	[22, 45, 15, 13, 46, 16],
+
+	// 26
+	[10, 142, 114, 2, 143, 115],
+	[19, 74, 46, 4, 75, 47],
+	[28, 50, 22, 6, 51, 23],
+	[33, 46, 16, 4, 47, 17],
+
+	// 27
+	[8, 152, 122, 4, 153, 123],
+	[22, 73, 45, 3, 74, 46],
+	[8, 53, 23, 26, 54, 24],
+	[12, 45, 15, 28, 46, 16],
+
+	// 28
+	[3, 147, 117, 10, 148, 118],
+	[3, 73, 45, 23, 74, 46],
+	[4, 54, 24, 31, 55, 25],
+	[11, 45, 15, 31, 46, 16],
+
+	// 29
+	[7, 146, 116, 7, 147, 117],
+	[21, 73, 45, 7, 74, 46],
+	[1, 53, 23, 37, 54, 24],
+	[19, 45, 15, 26, 46, 16],
+
+	// 30
+	[5, 145, 115, 10, 146, 116],
+	[19, 75, 47, 10, 76, 48],
+	[15, 54, 24, 25, 55, 25],
+	[23, 45, 15, 25, 46, 16],
+
+	// 31
+	[13, 145, 115, 3, 146, 116],
+	[2, 74, 46, 29, 75, 47],
+	[42, 54, 24, 1, 55, 25],
+	[23, 45, 15, 28, 46, 16],
+
+	// 32
+	[17, 145, 115],
+	[10, 74, 46, 23, 75, 47],
+	[10, 54, 24, 35, 55, 25],
+	[19, 45, 15, 35, 46, 16],
+
+	// 33
+	[17, 145, 115, 1, 146, 116],
+	[14, 74, 46, 21, 75, 47],
+	[29, 54, 24, 19, 55, 25],
+	[11, 45, 15, 46, 46, 16],
+
+	// 34
+	[13, 145, 115, 6, 146, 116],
+	[14, 74, 46, 23, 75, 47],
+	[44, 54, 24, 7, 55, 25],
+	[59, 46, 16, 1, 47, 17],
+
+	// 35
+	[12, 151, 121, 7, 152, 122],
+	[12, 75, 47, 26, 76, 48],
+	[39, 54, 24, 14, 55, 25],
+	[22, 45, 15, 41, 46, 16],
+
+	// 36
+	[6, 151, 121, 14, 152, 122],
+	[6, 75, 47, 34, 76, 48],
+	[46, 54, 24, 10, 55, 25],
+	[2, 45, 15, 64, 46, 16],
+
+	// 37
+	[17, 152, 122, 4, 153, 123],
+	[29, 74, 46, 14, 75, 47],
+	[49, 54, 24, 10, 55, 25],
+	[24, 45, 15, 46, 46, 16],
+
+	// 38
+	[4, 152, 122, 18, 153, 123],
+	[13, 74, 46, 32, 75, 47],
+	[48, 54, 24, 14, 55, 25],
+	[42, 45, 15, 32, 46, 16],
+
+	// 39
+	[20, 147, 117, 4, 148, 118],
+	[40, 75, 47, 7, 76, 48],
+	[43, 54, 24, 22, 55, 25],
+	[10, 45, 15, 67, 46, 16],
+
+	// 40
+	[19, 148, 118, 6, 149, 119],
+	[18, 75, 47, 31, 76, 48],
+	[34, 54, 24, 34, 55, 25],
+	[20, 45, 15, 61, 46, 16]
+];
+
+QRRSBlock.getRSBlocks = function(typeNumber, errorCorrectLevel) {
+	
+	var rsBlock = QRRSBlock.getRsBlockTable(typeNumber, errorCorrectLevel);
+	
+	if (rsBlock === undefined) {
+		throw new Error("bad rs block @ typeNumber:" + typeNumber + "/errorCorrectLevel:" + errorCorrectLevel);
+	}
+
+	var length = rsBlock.length / 3;
+	
+	var list = [];
+	
+	for (var i = 0; i < length; i++) {
+
+		var count = rsBlock[i * 3 + 0];
+		var totalCount = rsBlock[i * 3 + 1];
+		var dataCount  = rsBlock[i * 3 + 2];
+
+		for (var j = 0; j < count; j++) {
+			list.push(new QRRSBlock(totalCount, dataCount) );	
+		}
+	}
+	
+	return list;
+};
+
+QRRSBlock.getRsBlockTable = function(typeNumber, errorCorrectLevel) {
+
+	switch(errorCorrectLevel) {
+	case QRErrorCorrectLevel.L :
+		return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 0];
+	case QRErrorCorrectLevel.M :
+		return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 1];
+	case QRErrorCorrectLevel.Q :
+		return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 2];
+	case QRErrorCorrectLevel.H :
+		return QRRSBlock.RS_BLOCK_TABLE[(typeNumber - 1) * 4 + 3];
+	default :
+		return undefined;
+	}
+};
+
+module.exports = QRRSBlock;
+
+}};
+M["QRUtil"]={f:function(module,exports,require){var QRMode = require('./QRMode');
+var QRPolynomial = require('./QRPolynomial');
+var QRMath = require('./QRMath');
+var QRMaskPattern = require('./QRMaskPattern');
+
+var QRUtil = {
+
+    PATTERN_POSITION_TABLE : [
+        [],
+        [6, 18],
+        [6, 22],
+        [6, 26],
+        [6, 30],
+        [6, 34],
+        [6, 22, 38],
+        [6, 24, 42],
+        [6, 26, 46],
+        [6, 28, 50],
+        [6, 30, 54],        
+        [6, 32, 58],
+        [6, 34, 62],
+        [6, 26, 46, 66],
+        [6, 26, 48, 70],
+        [6, 26, 50, 74],
+        [6, 30, 54, 78],
+        [6, 30, 56, 82],
+        [6, 30, 58, 86],
+        [6, 34, 62, 90],
+        [6, 28, 50, 72, 94],
+        [6, 26, 50, 74, 98],
+        [6, 30, 54, 78, 102],
+        [6, 28, 54, 80, 106],
+        [6, 32, 58, 84, 110],
+        [6, 30, 58, 86, 114],
+        [6, 34, 62, 90, 118],
+        [6, 26, 50, 74, 98, 122],
+        [6, 30, 54, 78, 102, 126],
+        [6, 26, 52, 78, 104, 130],
+        [6, 30, 56, 82, 108, 134],
+        [6, 34, 60, 86, 112, 138],
+        [6, 30, 58, 86, 114, 142],
+        [6, 34, 62, 90, 118, 146],
+        [6, 30, 54, 78, 102, 126, 150],
+        [6, 24, 50, 76, 102, 128, 154],
+        [6, 28, 54, 80, 106, 132, 158],
+        [6, 32, 58, 84, 110, 136, 162],
+        [6, 26, 54, 82, 110, 138, 166],
+        [6, 30, 58, 86, 114, 142, 170]
+    ],
+
+    G15 : (1 << 10) | (1 << 8) | (1 << 5) | (1 << 4) | (1 << 2) | (1 << 1) | (1 << 0),
+    G18 : (1 << 12) | (1 << 11) | (1 << 10) | (1 << 9) | (1 << 8) | (1 << 5) | (1 << 2) | (1 << 0),
+    G15_MASK : (1 << 14) | (1 << 12) | (1 << 10)    | (1 << 4) | (1 << 1),
+
+    getBCHTypeInfo : function(data) {
+        var d = data << 10;
+        while (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G15) >= 0) {
+            d ^= (QRUtil.G15 << (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G15) ) );    
+        }
+        return ( (data << 10) | d) ^ QRUtil.G15_MASK;
+    },
+
+    getBCHTypeNumber : function(data) {
+        var d = data << 12;
+        while (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G18) >= 0) {
+            d ^= (QRUtil.G18 << (QRUtil.getBCHDigit(d) - QRUtil.getBCHDigit(QRUtil.G18) ) );    
+        }
+        return (data << 12) | d;
+    },
+
+    getBCHDigit : function(data) {
+
+        var digit = 0;
+
+        while (data !== 0) {
+            digit++;
+            data >>>= 1;
+        }
+
+        return digit;
+    },
+
+    getPatternPosition : function(typeNumber) {
+        return QRUtil.PATTERN_POSITION_TABLE[typeNumber - 1];
+    },
+
+    getMask : function(maskPattern, i, j) {
+        
+        switch (maskPattern) {
+            
+        case QRMaskPattern.PATTERN000 : return (i + j) % 2 === 0;
+        case QRMaskPattern.PATTERN001 : return i % 2 === 0;
+        case QRMaskPattern.PATTERN010 : return j % 3 === 0;
+        case QRMaskPattern.PATTERN011 : return (i + j) % 3 === 0;
+        case QRMaskPattern.PATTERN100 : return (Math.floor(i / 2) + Math.floor(j / 3) ) % 2 === 0;
+        case QRMaskPattern.PATTERN101 : return (i * j) % 2 + (i * j) % 3 === 0;
+        case QRMaskPattern.PATTERN110 : return ( (i * j) % 2 + (i * j) % 3) % 2 === 0;
+        case QRMaskPattern.PATTERN111 : return ( (i * j) % 3 + (i + j) % 2) % 2 === 0;
+
+        default :
+            throw new Error("bad maskPattern:" + maskPattern);
+        }
+    },
+
+    getErrorCorrectPolynomial : function(errorCorrectLength) {
+
+        var a = new QRPolynomial([1], 0);
+
+        for (var i = 0; i < errorCorrectLength; i++) {
+            a = a.multiply(new QRPolynomial([1, QRMath.gexp(i)], 0) );
+        }
+
+        return a;
+    },
+
+    getLengthInBits : function(mode, type) {
+
+        if (1 <= type && type < 10) {
+
+            // 1 - 9
+
+            switch(mode) {
+            case QRMode.MODE_NUMBER     : return 10;
+            case QRMode.MODE_ALPHA_NUM  : return 9;
+            case QRMode.MODE_8BIT_BYTE  : return 8;
+            case QRMode.MODE_KANJI      : return 8;
+            default :
+                throw new Error("mode:" + mode);
+            }
+
+        } else if (type < 27) {
+
+            // 10 - 26
+
+            switch(mode) {
+            case QRMode.MODE_NUMBER     : return 12;
+            case QRMode.MODE_ALPHA_NUM  : return 11;
+            case QRMode.MODE_8BIT_BYTE  : return 16;
+            case QRMode.MODE_KANJI      : return 10;
+            default :
+                throw new Error("mode:" + mode);
+            }
+
+        } else if (type < 41) {
+
+            // 27 - 40
+
+            switch(mode) {
+            case QRMode.MODE_NUMBER     : return 14;
+            case QRMode.MODE_ALPHA_NUM  : return 13;
+            case QRMode.MODE_8BIT_BYTE  : return 16;
+            case QRMode.MODE_KANJI      : return 12;
+            default :
+                throw new Error("mode:" + mode);
+            }
+
+        } else {
+            throw new Error("type:" + type);
+        }
+    },
+
+    getLostPoint : function(qrCode) {
+        
+        var moduleCount = qrCode.getModuleCount();
+        var lostPoint = 0;
+        var row = 0; 
+        var col = 0;
+
+        
+        // LEVEL1
+        
+        for (row = 0; row < moduleCount; row++) {
+
+            for (col = 0; col < moduleCount; col++) {
+
+                var sameCount = 0;
+                var dark = qrCode.isDark(row, col);
+
+                for (var r = -1; r <= 1; r++) {
+
+                    if (row + r < 0 || moduleCount <= row + r) {
+                        continue;
+                    }
+
+                    for (var c = -1; c <= 1; c++) {
+
+                        if (col + c < 0 || moduleCount <= col + c) {
+                            continue;
+                        }
+
+                        if (r === 0 && c === 0) {
+                            continue;
+                        }
+
+                        if (dark === qrCode.isDark(row + r, col + c) ) {
+                            sameCount++;
+                        }
+                    }
+                }
+
+                if (sameCount > 5) {
+                    lostPoint += (3 + sameCount - 5);
+                }
+            }
+        }
+
+        // LEVEL2
+
+        for (row = 0; row < moduleCount - 1; row++) {
+            for (col = 0; col < moduleCount - 1; col++) {
+                var count = 0;
+                if (qrCode.isDark(row,     col    ) ) count++;
+                if (qrCode.isDark(row + 1, col    ) ) count++;
+                if (qrCode.isDark(row,     col + 1) ) count++;
+                if (qrCode.isDark(row + 1, col + 1) ) count++;
+                if (count === 0 || count === 4) {
+                    lostPoint += 3;
+                }
+            }
+        }
+
+        // LEVEL3
+
+        for (row = 0; row < moduleCount; row++) {
+            for (col = 0; col < moduleCount - 6; col++) {
+                if (qrCode.isDark(row, col) && 
+                        !qrCode.isDark(row, col + 1) && 
+                         qrCode.isDark(row, col + 2) && 
+                         qrCode.isDark(row, col + 3) && 
+                         qrCode.isDark(row, col + 4) && 
+                        !qrCode.isDark(row, col + 5) && 
+                         qrCode.isDark(row, col + 6) ) {
+                    lostPoint += 40;
+                }
+            }
+        }
+
+        for (col = 0; col < moduleCount; col++) {
+            for (row = 0; row < moduleCount - 6; row++) {
+                if (qrCode.isDark(row, col) &&
+                        !qrCode.isDark(row + 1, col) &&
+                         qrCode.isDark(row + 2, col) &&
+                         qrCode.isDark(row + 3, col) &&
+                         qrCode.isDark(row + 4, col) &&
+                        !qrCode.isDark(row + 5, col) &&
+                         qrCode.isDark(row + 6, col) ) {
+                    lostPoint += 40;
+                }
+            }
+        }
+
+        // LEVEL4
+        
+        var darkCount = 0;
+
+        for (col = 0; col < moduleCount; col++) {
+            for (row = 0; row < moduleCount; row++) {
+                if (qrCode.isDark(row, col) ) {
+                    darkCount++;
+                }
+            }
+        }
+        
+        var ratio = Math.abs(100 * darkCount / moduleCount / moduleCount - 50) / 5;
+        lostPoint += ratio * 10;
+
+        return lostPoint;       
+    }
+
+};
+
+module.exports = QRUtil;
+
+}};
+M["index"]={f:function(module,exports,require){//---------------------------------------------------------------------
+// QRCode for JavaScript
+//
+// Copyright (c) 2009 Kazuhiko Arase
+//
+// URL: http://www.d-project.com/
+//
+// Licensed under the MIT license:
+//   http://www.opensource.org/licenses/mit-license.php
+//
+// The word "QR Code" is registered trademark of 
+// DENSO WAVE INCORPORATED
+//   http://www.denso-wave.com/qrcode/faqpatent-e.html
+//
+//---------------------------------------------------------------------
+// Modified to work in node for this project (and some refactoring)
+//---------------------------------------------------------------------
+
+var QR8bitByte = require('./QR8bitByte');
+var QRUtil = require('./QRUtil');
+var QRPolynomial = require('./QRPolynomial');
+var QRRSBlock = require('./QRRSBlock');
+var QRBitBuffer = require('./QRBitBuffer');
+
+function QRCode(typeNumber, errorCorrectLevel) {
+	this.typeNumber = typeNumber;
+	this.errorCorrectLevel = errorCorrectLevel;
+	this.modules = null;
+	this.moduleCount = 0;
+	this.dataCache = null;
+	this.dataList = [];
+}
+
+QRCode.prototype = {
+	
+	addData : function(data) {
+		var newData = new QR8bitByte(data);
+		this.dataList.push(newData);
+		this.dataCache = null;
+	},
+	
+	isDark : function(row, col) {
+		if (row < 0 || this.moduleCount <= row || col < 0 || this.moduleCount <= col) {
+			throw new Error(row + "," + col);
+		}
+		return this.modules[row][col];
+	},
+
+	getModuleCount : function() {
+		return this.moduleCount;
+	},
+	
+	make : function() {
+		// Calculate automatically typeNumber if provided is < 1
+		if (this.typeNumber < 1 ){
+			var typeNumber = 1;
+			for (typeNumber = 1; typeNumber < 40; typeNumber++) {
+				var rsBlocks = QRRSBlock.getRSBlocks(typeNumber, this.errorCorrectLevel);
+
+				var buffer = new QRBitBuffer();
+				var totalDataCount = 0;
+				for (var i = 0; i < rsBlocks.length; i++) {
+					totalDataCount += rsBlocks[i].dataCount;
+				}
+
+				for (var x = 0; x < this.dataList.length; x++) {
+					var data = this.dataList[x];
+					buffer.put(data.mode, 4);
+					buffer.put(data.getLength(), QRUtil.getLengthInBits(data.mode, typeNumber) );
+					data.write(buffer);
+				}
+				if (buffer.getLengthInBits() <= totalDataCount * 8)
+					break;
+			}
+			this.typeNumber = typeNumber;
+		}
+		this.makeImpl(false, this.getBestMaskPattern() );
+	},
+	
+	makeImpl : function(test, maskPattern) {
+		
+		this.moduleCount = this.typeNumber * 4 + 17;
+		this.modules = new Array(this.moduleCount);
+		
+		for (var row = 0; row < this.moduleCount; row++) {
+			
+			this.modules[row] = new Array(this.moduleCount);
+			
+			for (var col = 0; col < this.moduleCount; col++) {
+				this.modules[row][col] = null;//(col + row) % 3;
+			}
+		}
+	
+		this.setupPositionProbePattern(0, 0);
+		this.setupPositionProbePattern(this.moduleCount - 7, 0);
+		this.setupPositionProbePattern(0, this.moduleCount - 7);
+		this.setupPositionAdjustPattern();
+		this.setupTimingPattern();
+		this.setupTypeInfo(test, maskPattern);
+		
+		if (this.typeNumber >= 7) {
+			this.setupTypeNumber(test);
+		}
+	
+		if (this.dataCache === null) {
+			this.dataCache = QRCode.createData(this.typeNumber, this.errorCorrectLevel, this.dataList);
+		}
+	
+		this.mapData(this.dataCache, maskPattern);
+	},
+
+	setupPositionProbePattern : function(row, col)  {
+		
+		for (var r = -1; r <= 7; r++) {
+			
+			if (row + r <= -1 || this.moduleCount <= row + r) continue;
+			
+			for (var c = -1; c <= 7; c++) {
+				
+				if (col + c <= -1 || this.moduleCount <= col + c) continue;
+				
+				if ( (0 <= r && r <= 6 && (c === 0 || c === 6) ) || 
+                     (0 <= c && c <= 6 && (r === 0 || r === 6) ) || 
+                     (2 <= r && r <= 4 && 2 <= c && c <= 4) ) {
+					this.modules[row + r][col + c] = true;
+				} else {
+					this.modules[row + r][col + c] = false;
+				}
+			}		
+		}		
+	},
+	
+	getBestMaskPattern : function() {
+	
+		var minLostPoint = 0;
+		var pattern = 0;
+	
+		for (var i = 0; i < 8; i++) {
+			
+			this.makeImpl(true, i);
+	
+			var lostPoint = QRUtil.getLostPoint(this);
+	
+			if (i === 0 || minLostPoint >  lostPoint) {
+				minLostPoint = lostPoint;
+				pattern = i;
+			}
+		}
+	
+		return pattern;
+	},
+	
+	createMovieClip : function(target_mc, instance_name, depth) {
+	
+		var qr_mc = target_mc.createEmptyMovieClip(instance_name, depth);
+		var cs = 1;
+	
+		this.make();
+
+		for (var row = 0; row < this.modules.length; row++) {
+			
+			var y = row * cs;
+			
+			for (var col = 0; col < this.modules[row].length; col++) {
+	
+				var x = col * cs;
+				var dark = this.modules[row][col];
+			
+				if (dark) {
+					qr_mc.beginFill(0, 100);
+					qr_mc.moveTo(x, y);
+					qr_mc.lineTo(x + cs, y);
+					qr_mc.lineTo(x + cs, y + cs);
+					qr_mc.lineTo(x, y + cs);
+					qr_mc.endFill();
+				}
+			}
+		}
+		
+		return qr_mc;
+	},
+
+	setupTimingPattern : function() {
+		
+		for (var r = 8; r < this.moduleCount - 8; r++) {
+			if (this.modules[r][6] !== null) {
+				continue;
+			}
+			this.modules[r][6] = (r % 2 === 0);
+		}
+	
+		for (var c = 8; c < this.moduleCount - 8; c++) {
+			if (this.modules[6][c] !== null) {
+				continue;
+			}
+			this.modules[6][c] = (c % 2 === 0);
+		}
+	},
+	
+	setupPositionAdjustPattern : function() {
+	
+		var pos = QRUtil.getPatternPosition(this.typeNumber);
+		
+		for (var i = 0; i < pos.length; i++) {
+		
+			for (var j = 0; j < pos.length; j++) {
+			
+				var row = pos[i];
+				var col = pos[j];
+				
+				if (this.modules[row][col] !== null) {
+					continue;
+				}
+				
+				for (var r = -2; r <= 2; r++) {
+				
+					for (var c = -2; c <= 2; c++) {
+					
+						if (Math.abs(r) === 2 || 
+                            Math.abs(c) === 2 ||
+                            (r === 0 && c === 0) ) {
+							this.modules[row + r][col + c] = true;
+						} else {
+							this.modules[row + r][col + c] = false;
+						}
+					}
+				}
+			}
+		}
+	},
+	
+	setupTypeNumber : function(test) {
+	
+		var bits = QRUtil.getBCHTypeNumber(this.typeNumber);
+        var mod;
+	
+		for (var i = 0; i < 18; i++) {
+			mod = (!test && ( (bits >> i) & 1) === 1);
+			this.modules[Math.floor(i / 3)][i % 3 + this.moduleCount - 8 - 3] = mod;
+		}
+	
+		for (var x = 0; x < 18; x++) {
+			mod = (!test && ( (bits >> x) & 1) === 1);
+			this.modules[x % 3 + this.moduleCount - 8 - 3][Math.floor(x / 3)] = mod;
+		}
+	},
+	
+	setupTypeInfo : function(test, maskPattern) {
+	
+		var data = (this.errorCorrectLevel << 3) | maskPattern;
+		var bits = QRUtil.getBCHTypeInfo(data);
+        var mod;
+	
+		// vertical		
+		for (var v = 0; v < 15; v++) {
+	
+			mod = (!test && ( (bits >> v) & 1) === 1);
+	
+			if (v < 6) {
+				this.modules[v][8] = mod;
+			} else if (v < 8) {
+				this.modules[v + 1][8] = mod;
+			} else {
+				this.modules[this.moduleCount - 15 + v][8] = mod;
+			}
+		}
+	
+		// horizontal
+		for (var h = 0; h < 15; h++) {
+	
+			mod = (!test && ( (bits >> h) & 1) === 1);
+			
+			if (h < 8) {
+				this.modules[8][this.moduleCount - h - 1] = mod;
+			} else if (h < 9) {
+				this.modules[8][15 - h - 1 + 1] = mod;
+			} else {
+				this.modules[8][15 - h - 1] = mod;
+			}
+		}
+	
+		// fixed module
+		this.modules[this.moduleCount - 8][8] = (!test);
+	
+	},
+	
+	mapData : function(data, maskPattern) {
+		
+		var inc = -1;
+		var row = this.moduleCount - 1;
+		var bitIndex = 7;
+		var byteIndex = 0;
+		
+		for (var col = this.moduleCount - 1; col > 0; col -= 2) {
+	
+			if (col === 6) col--;
+	
+			while (true) {
+	
+				for (var c = 0; c < 2; c++) {
+					
+					if (this.modules[row][col - c] === null) {
+						
+						var dark = false;
+	
+						if (byteIndex < data.length) {
+							dark = ( ( (data[byteIndex] >>> bitIndex) & 1) === 1);
+						}
+	
+						var mask = QRUtil.getMask(maskPattern, row, col - c);
+	
+						if (mask) {
+							dark = !dark;
+						}
+						
+						this.modules[row][col - c] = dark;
+						bitIndex--;
+	
+						if (bitIndex === -1) {
+							byteIndex++;
+							bitIndex = 7;
+						}
+					}
+				}
+								
+				row += inc;
+	
+				if (row < 0 || this.moduleCount <= row) {
+					row -= inc;
+					inc = -inc;
+					break;
+				}
+			}
+		}
+		
+	}
+
+};
+
+QRCode.PAD0 = 0xEC;
+QRCode.PAD1 = 0x11;
+
+QRCode.createData = function(typeNumber, errorCorrectLevel, dataList) {
+	
+	var rsBlocks = QRRSBlock.getRSBlocks(typeNumber, errorCorrectLevel);
+	
+	var buffer = new QRBitBuffer();
+	
+	for (var i = 0; i < dataList.length; i++) {
+		var data = dataList[i];
+		buffer.put(data.mode, 4);
+		buffer.put(data.getLength(), QRUtil.getLengthInBits(data.mode, typeNumber) );
+		data.write(buffer);
+	}
+
+	// calc num max data.
+	var totalDataCount = 0;
+	for (var x = 0; x < rsBlocks.length; x++) {
+		totalDataCount += rsBlocks[x].dataCount;
+	}
+
+	if (buffer.getLengthInBits() > totalDataCount * 8) {
+		throw new Error("code length overflow. (" + 
+            buffer.getLengthInBits() + 
+            ">" +  
+            totalDataCount * 8 + 
+            ")");
+	}
+
+	// end code
+	if (buffer.getLengthInBits() + 4 <= totalDataCount * 8) {
+		buffer.put(0, 4);
+	}
+
+	// padding
+	while (buffer.getLengthInBits() % 8 !== 0) {
+		buffer.putBit(false);
+	}
+
+	// padding
+	while (true) {
+		
+		if (buffer.getLengthInBits() >= totalDataCount * 8) {
+			break;
+		}
+		buffer.put(QRCode.PAD0, 8);
+		
+		if (buffer.getLengthInBits() >= totalDataCount * 8) {
+			break;
+		}
+		buffer.put(QRCode.PAD1, 8);
+	}
+
+	return QRCode.createBytes(buffer, rsBlocks);
+};
+
+QRCode.createBytes = function(buffer, rsBlocks) {
+
+	var offset = 0;
+	
+	var maxDcCount = 0;
+	var maxEcCount = 0;
+	
+	var dcdata = new Array(rsBlocks.length);
+	var ecdata = new Array(rsBlocks.length);
+	
+	for (var r = 0; r < rsBlocks.length; r++) {
+
+		var dcCount = rsBlocks[r].dataCount;
+		var ecCount = rsBlocks[r].totalCount - dcCount;
+
+		maxDcCount = Math.max(maxDcCount, dcCount);
+		maxEcCount = Math.max(maxEcCount, ecCount);
+		
+		dcdata[r] = new Array(dcCount);
+		
+		for (var i = 0; i < dcdata[r].length; i++) {
+			dcdata[r][i] = 0xff & buffer.buffer[i + offset];
+		}
+		offset += dcCount;
+		
+		var rsPoly = QRUtil.getErrorCorrectPolynomial(ecCount);
+		var rawPoly = new QRPolynomial(dcdata[r], rsPoly.getLength() - 1);
+
+		var modPoly = rawPoly.mod(rsPoly);
+		ecdata[r] = new Array(rsPoly.getLength() - 1);
+		for (var x = 0; x < ecdata[r].length; x++) {
+            var modIndex = x + modPoly.getLength() - ecdata[r].length;
+			ecdata[r][x] = (modIndex >= 0)? modPoly.get(modIndex) : 0;
+		}
+
+	}
+	
+	var totalCodeCount = 0;
+	for (var y = 0; y < rsBlocks.length; y++) {
+		totalCodeCount += rsBlocks[y].totalCount;
+	}
+
+	var data = new Array(totalCodeCount);
+	var index = 0;
+
+	for (var z = 0; z < maxDcCount; z++) {
+		for (var s = 0; s < rsBlocks.length; s++) {
+			if (z < dcdata[s].length) {
+				data[index++] = dcdata[s][z];
+			}
+		}
+	}
+
+	for (var xx = 0; xx < maxEcCount; xx++) {
+		for (var t = 0; t < rsBlocks.length; t++) {
+			if (xx < ecdata[t].length) {
+				data[index++] = ecdata[t][xx];
+			}
+		}
+	}
+
+	return data;
+
+};
+
+module.exports = QRCode;
+
+}};
+window.QRGen=R("index");window.QRECL=R("QRErrorCorrectLevel");})();</script>
+<script>
+{
+const SETS = {"newton": {"title": "Newton, Sürtünme, Dairesel Hareket, İş ve Enerji", "qs": [{"q": "Newton'un 1. yasasına göre net kuvvet sıfırsa cisim ne yapar?", "a": ["Mutlaka durur", "Durur ya da sabit hızla gider", "Yavaşlayarak durur", "Sürekli hızlanır"], "c": 1, "t": 20}, {"q": "1 newton (N) aşağıdakilerden hangisine eşittir?", "a": ["1 kg·m/s", "1 kg/s²", "1 kg·m²/s", "1 kg·m/s²"], "c": 3, "t": 20}, {"q": "5 kg kütleli bir cisme 20 N net kuvvet etki ediyor. İvmesi kaç m/s²'dir?", "a": ["4", "100", "0,25", "15"], "c": 0, "t": 30, "img": "<svg viewBox=\"0 0 420 250\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"Montserrat,Arial\" font-weight=\"700\"><defs><marker id=\"mr\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#e21b3c\"/><\/marker><marker id=\"mb\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#1368ce\"/><\/marker><marker id=\"mg\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#26890c\"/><\/marker><marker id=\"mk\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#333\"/><\/marker><marker id=\"mo\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#d89e00\"/><\/marker><\/defs><line x1=\"60\" y1=\"170\" x2=\"360\" y2=\"170\" stroke=\"#333\" stroke-width=\"3\"/><line x1=\"60\" y1=\"170\" x2=\"51\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"74\" y1=\"170\" x2=\"65\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"88\" y1=\"170\" x2=\"79\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"102\" y1=\"170\" x2=\"93\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"116\" y1=\"170\" x2=\"107\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"130\" y1=\"170\" x2=\"121\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"144\" y1=\"170\" x2=\"135\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"158\" y1=\"170\" x2=\"149\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"172\" y1=\"170\" x2=\"163\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"186\" y1=\"170\" x2=\"177\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"200\" y1=\"170\" x2=\"191\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"214\" y1=\"170\" x2=\"205\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"228\" y1=\"170\" x2=\"219\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"242\" y1=\"170\" x2=\"233\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"256\" y1=\"170\" x2=\"247\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"270\" y1=\"170\" x2=\"261\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"284\" y1=\"170\" x2=\"275\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"298\" y1=\"170\" x2=\"289\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"312\" y1=\"170\" x2=\"303\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"326\" y1=\"170\" x2=\"317\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"340\" y1=\"170\" x2=\"331\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"354\" y1=\"170\" x2=\"345\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><rect x=\"160\" y=\"110\" width=\"90\" height=\"60\" rx=\"3\" fill=\"#ffd9a8\" stroke=\"#333\" stroke-width=\"2.5\"/><text x=\"205.0\" y=\"146.0\" fill=\"#333\" font-size=\"16\" text-anchor=\"middle\">5 kg<\/text><line x1=\"250\" y1=\"140\" x2=\"350\" y2=\"140\" stroke=\"#e21b3c\" stroke-width=\"4\" marker-end=\"url(#mr)\"/><text x=\"310\" y=\"128\" fill=\"#e21b3c\" font-size=\"18\" text-anchor=\"middle\">20 N<\/text><\/svg>"}, {"q": "Bir kasaya doğuya 30 N, kuzeye 40 N kuvvet uygulanıyor. Net kuvvet kaç N'dur?", "a": ["70 N", "10 N", "50 N", "35 N"], "c": 2, "t": 30, "img": "<svg viewBox=\"0 0 420 250\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"Montserrat,Arial\" font-weight=\"700\"><defs><marker id=\"mr\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#e21b3c\"/><\/marker><marker id=\"mb\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#1368ce\"/><\/marker><marker id=\"mg\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#26890c\"/><\/marker><marker id=\"mk\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#333\"/><\/marker><marker id=\"mo\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#d89e00\"/><\/marker><\/defs><rect x=\"170\" y=\"120\" width=\"70\" height=\"60\" rx=\"3\" fill=\"#ffd9a8\" stroke=\"#333\" stroke-width=\"2.5\"/><line x1=\"240\" y1=\"150\" x2=\"380\" y2=\"150\" stroke=\"#1368ce\" stroke-width=\"4\" marker-end=\"url(#mb)\"/><text x=\"330\" y=\"180\" fill=\"#1368ce\" font-size=\"16\" text-anchor=\"middle\">30 N (doğu)<\/text><line x1=\"205\" y1=\"120\" x2=\"205\" y2=\"15\" stroke=\"#e21b3c\" stroke-width=\"4\" marker-end=\"url(#mr)\"/><text x=\"260\" y=\"40\" fill=\"#e21b3c\" font-size=\"16\" text-anchor=\"middle\">40 N (kuzey)<\/text><\/svg>"}, {"q": "Vinç 500 kg'lık yükü SABİT hızla kaldırıyor. Halat gerilmesi kaç N'dur? (g = 9,8)", "a": ["5000 N", "0 N", "4900 N", "500 N"], "c": 2, "t": 30, "img": "<svg viewBox=\"0 0 420 250\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"Montserrat,Arial\" font-weight=\"700\"><defs><marker id=\"mr\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#e21b3c\"/><\/marker><marker id=\"mb\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#1368ce\"/><\/marker><marker id=\"mg\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#26890c\"/><\/marker><marker id=\"mk\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#333\"/><\/marker><marker id=\"mo\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#d89e00\"/><\/marker><\/defs><rect x=\"60\" y=\"20\" width=\"16\" height=\"200\" fill=\"#d89e00\"/><rect x=\"60\" y=\"20\" width=\"250\" height=\"14\" fill=\"#d89e00\"/><line x1=\"260\" y1=\"34\" x2=\"260\" y2=\"110\" stroke=\"#333\" stroke-width=\"3\"/><rect x=\"220\" y=\"110\" width=\"80\" height=\"55\" rx=\"3\" fill=\"#ccc\" stroke=\"#333\" stroke-width=\"2.5\"/><text x=\"260.0\" y=\"143.5\" fill=\"#333\" font-size=\"16\" text-anchor=\"middle\">500 kg<\/text><line x1=\"330\" y1=\"175\" x2=\"330\" y2=\"120\" stroke=\"#1368ce\" stroke-width=\"3\" marker-end=\"url(#mb)\"/><text x=\"375\" y=\"150\" fill=\"#1368ce\" font-size=\"15\" text-anchor=\"middle\">v sabit<\/text><line x1=\"30\" y1=\"222\" x2=\"400\" y2=\"222\" stroke=\"#333\" stroke-width=\"3\"/><line x1=\"30\" y1=\"222\" x2=\"21\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"44\" y1=\"222\" x2=\"35\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"58\" y1=\"222\" x2=\"49\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"72\" y1=\"222\" x2=\"63\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"86\" y1=\"222\" x2=\"77\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"100\" y1=\"222\" x2=\"91\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"114\" y1=\"222\" x2=\"105\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"128\" y1=\"222\" x2=\"119\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"142\" y1=\"222\" x2=\"133\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"156\" y1=\"222\" x2=\"147\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"170\" y1=\"222\" x2=\"161\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"184\" y1=\"222\" x2=\"175\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"198\" y1=\"222\" x2=\"189\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"212\" y1=\"222\" x2=\"203\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"226\" y1=\"222\" x2=\"217\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"240\" y1=\"222\" x2=\"231\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"254\" y1=\"222\" x2=\"245\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"268\" y1=\"222\" x2=\"259\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"282\" y1=\"222\" x2=\"273\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"296\" y1=\"222\" x2=\"287\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"310\" y1=\"222\" x2=\"301\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"324\" y1=\"222\" x2=\"315\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"338\" y1=\"222\" x2=\"329\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"352\" y1=\"222\" x2=\"343\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"366\" y1=\"222\" x2=\"357\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"380\" y1=\"222\" x2=\"371\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"394\" y1=\"222\" x2=\"385\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><\/svg>"}, {"q": "Etki–tepki kuvvetleri neden birbirini götürmez?", "a": ["Farklı cisimlere etki ederler", "Büyüklükleri farklıdır", "Aynı yöndedirler", "Sadece hareketli cisimlerde oluşurlar"], "c": 0, "t": 20, "img": "<svg viewBox=\"0 0 420 250\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"Montserrat,Arial\" font-weight=\"700\"><defs><marker id=\"mr\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#e21b3c\"/><\/marker><marker id=\"mb\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#1368ce\"/><\/marker><marker id=\"mg\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#26890c\"/><\/marker><marker id=\"mk\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#333\"/><\/marker><marker id=\"mo\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#d89e00\"/><\/marker><\/defs><rect x=\"80\" y=\"90\" width=\"90\" height=\"70\" rx=\"3\" fill=\"#ffd9a8\" stroke=\"#333\" stroke-width=\"2.5\"/><text x=\"125.0\" y=\"131.0\" fill=\"#333\" font-size=\"16\" text-anchor=\"middle\">A<\/text><rect x=\"250\" y=\"90\" width=\"90\" height=\"70\" rx=\"3\" fill=\"#bcd6fb\" stroke=\"#333\" stroke-width=\"2.5\"/><text x=\"295.0\" y=\"131.0\" fill=\"#333\" font-size=\"16\" text-anchor=\"middle\">B<\/text><line x1=\"175\" y1=\"110\" x2=\"245\" y2=\"110\" stroke=\"#e21b3c\" stroke-width=\"4\" marker-end=\"url(#mr)\"/><line x1=\"245\" y1=\"140\" x2=\"175\" y2=\"140\" stroke=\"#1368ce\" stroke-width=\"4\" marker-end=\"url(#mb)\"/><text x=\"210\" y=\"100\" fill=\"#e21b3c\" font-size=\"16\" text-anchor=\"middle\">F<\/text><text x=\"210\" y=\"132\" fill=\"#1368ce\" font-size=\"15\" text-anchor=\"middle\">−F<\/text><line x1=\"40\" y1=\"160\" x2=\"380\" y2=\"160\" stroke=\"#333\" stroke-width=\"3\"/><line x1=\"40\" y1=\"160\" x2=\"31\" y2=\"169\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"54\" y1=\"160\" x2=\"45\" y2=\"169\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"68\" y1=\"160\" x2=\"59\" y2=\"169\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"82\" y1=\"160\" x2=\"73\" y2=\"169\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"96\" y1=\"160\" x2=\"87\" y2=\"169\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"110\" y1=\"160\" x2=\"101\" y2=\"169\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"124\" y1=\"160\" x2=\"115\" y2=\"169\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"138\" y1=\"160\" x2=\"129\" y2=\"169\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"152\" y1=\"160\" x2=\"143\" y2=\"169\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"166\" y1=\"160\" x2=\"157\" y2=\"169\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"180\" y1=\"160\" x2=\"171\" y2=\"169\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"194\" y1=\"160\" x2=\"185\" y2=\"169\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"208\" y1=\"160\" x2=\"199\" y2=\"169\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"222\" y1=\"160\" x2=\"213\" y2=\"169\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"236\" y1=\"160\" x2=\"227\" y2=\"169\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"250\" y1=\"160\" x2=\"241\" y2=\"169\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"264\" y1=\"160\" x2=\"255\" y2=\"169\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"278\" y1=\"160\" x2=\"269\" y2=\"169\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"292\" y1=\"160\" x2=\"283\" y2=\"169\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"306\" y1=\"160\" x2=\"297\" y2=\"169\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"320\" y1=\"160\" x2=\"311\" y2=\"169\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"334\" y1=\"160\" x2=\"325\" y2=\"169\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"348\" y1=\"160\" x2=\"339\" y2=\"169\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"362\" y1=\"160\" x2=\"353\" y2=\"169\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"376\" y1=\"160\" x2=\"367\" y2=\"169\" stroke=\"#999\" stroke-width=\"1.5\"/><text x=\"210\" y=\"200\" fill=\"#333\" font-size=\"15\" text-anchor=\"middle\">A, B'yi iter; B de A'yı iter<\/text><\/svg>"}, {"q": "Sürtünmesiz 30° eğimli rampada kayan cismin ivmesi kaç m/s²'dir? (g = 9,8)", "a": ["9,8", "8,5", "0", "4,9"], "c": 3, "t": 30, "img": "<svg viewBox=\"0 0 420 250\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"Montserrat,Arial\" font-weight=\"700\"><defs><marker id=\"mr\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#e21b3c\"/><\/marker><marker id=\"mb\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#1368ce\"/><\/marker><marker id=\"mg\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#26890c\"/><\/marker><marker id=\"mk\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#333\"/><\/marker><marker id=\"mo\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#d89e00\"/><\/marker><\/defs><polygon points=\"40,215 370,215 370,24\" fill=\"#eee\" stroke=\"#333\" stroke-width=\"2.5\"/><path d=\"M100,215 A60,60 0 0,0 92,185\" fill=\"none\" stroke=\"#333\" stroke-width=\"2\"/><text x=\"122\" y=\"203\" fill=\"#333\" font-size=\"16\" text-anchor=\"middle\">30°<\/text><g transform=\"translate(222,110) rotate(-30)\"><rect x=\"-30\" y=\"-40\" width=\"60\" height=\"40\" fill=\"#ffd9a8\" stroke=\"#333\" stroke-width=\"2.5\"/><text x=\"0\" y=\"-14\" fill=\"#333\" font-size=\"14\" text-anchor=\"middle\">m<\/text><\/g><\/svg>"}, {"q": "Sürtünmesiz masadaki 4 kg blok, makaradan sarkan 2 kg bloğa bağlı. İvme? (g = 9,8)", "a": ["9,8 m/s²", "≈ 3,27 m/s²", "4,9 m/s²", "2,45 m/s²"], "c": 1, "t": 60, "img": "<svg viewBox=\"0 0 420 250\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"Montserrat,Arial\" font-weight=\"700\"><defs><marker id=\"mr\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#e21b3c\"/><\/marker><marker id=\"mb\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#1368ce\"/><\/marker><marker id=\"mg\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#26890c\"/><\/marker><marker id=\"mk\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#333\"/><\/marker><marker id=\"mo\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#d89e00\"/><\/marker><\/defs><rect x=\"30\" y=\"110\" width=\"290\" height=\"14\" fill=\"#c8a26b\" stroke=\"#333\" stroke-width=\"2\"/><line x1=\"50\" y1=\"124\" x2=\"50\" y2=\"240\" stroke=\"#6b4a1d\" stroke-width=\"8\"/><line x1=\"300\" y1=\"124\" x2=\"300\" y2=\"240\" stroke=\"#6b4a1d\" stroke-width=\"8\"/><rect x=\"110\" y=\"65\" width=\"90\" height=\"45\" rx=\"3\" fill=\"#ffd9a8\" stroke=\"#333\" stroke-width=\"2.5\"/><text x=\"155.0\" y=\"93.5\" fill=\"#333\" font-size=\"16\" text-anchor=\"middle\">4 kg<\/text><circle cx=\"340\" cy=\"100\" r=\"16\" fill=\"#ddd\" stroke=\"#333\" stroke-width=\"2.5\"/><line x1=\"200\" y1=\"85\" x2=\"340\" y2=\"84\" stroke=\"#333\" stroke-width=\"2.5\"/><line x1=\"356\" y1=\"100\" x2=\"356\" y2=\"170\" stroke=\"#333\" stroke-width=\"2.5\"/><rect x=\"330\" y=\"170\" width=\"52\" height=\"45\" rx=\"3\" fill=\"#bcd6fb\" stroke=\"#333\" stroke-width=\"2.5\"/><text x=\"356.0\" y=\"198.5\" fill=\"#333\" font-size=\"16\" text-anchor=\"middle\">2 kg<\/text><text x=\"170\" y=\"150\" fill=\"#333\" font-size=\"14\" text-anchor=\"middle\">sürtünmesiz<\/text><\/svg>"}, {"q": "Buzda Ali (60 kg) Ece'yi (40 kg) 120 N ile itiyor. Ece'nin ivmesi kaç m/s²'dir?", "a": ["3", "2", "1,2", "5"], "c": 0, "t": 30, "img": "<svg viewBox=\"0 0 420 250\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"Montserrat,Arial\" font-weight=\"700\"><defs><marker id=\"mr\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#e21b3c\"/><\/marker><marker id=\"mb\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#1368ce\"/><\/marker><marker id=\"mg\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#26890c\"/><\/marker><marker id=\"mk\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#333\"/><\/marker><marker id=\"mo\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#d89e00\"/><\/marker><\/defs><line x1=\"20\" y1=\"215\" x2=\"400\" y2=\"215\" stroke=\"#8fd3ff\" stroke-width=\"8\"/><circle cx=\"185\" cy=\"110\" r=\"11\" fill=\"#1368ce\"/><line x1=\"185\" y1=\"121\" x2=\"185\" y2=\"162\" stroke=\"#1368ce\" stroke-width=\"6\"/><line x1=\"185\" y1=\"162\" x2=\"174\" y2=\"192\" stroke=\"#1368ce\" stroke-width=\"5\"/><line x1=\"185\" y1=\"162\" x2=\"196\" y2=\"192\" stroke=\"#1368ce\" stroke-width=\"5\"/><circle cx=\"235\" cy=\"115\" r=\"11\" fill=\"#e21b3c\"/><line x1=\"235\" y1=\"126\" x2=\"235\" y2=\"167\" stroke=\"#e21b3c\" stroke-width=\"6\"/><line x1=\"235\" y1=\"167\" x2=\"224\" y2=\"197\" stroke=\"#e21b3c\" stroke-width=\"5\"/><line x1=\"235\" y1=\"167\" x2=\"246\" y2=\"197\" stroke=\"#e21b3c\" stroke-width=\"5\"/><line x1=\"170\" y1=\"150\" x2=\"70\" y2=\"150\" stroke=\"#1368ce\" stroke-width=\"4\" marker-end=\"url(#mb)\"/><line x1=\"250\" y1=\"150\" x2=\"350\" y2=\"150\" stroke=\"#e21b3c\" stroke-width=\"4\" marker-end=\"url(#mr)\"/><text x=\"105\" y=\"138\" fill=\"#1368ce\" font-size=\"15\" text-anchor=\"middle\">120 N<\/text><text x=\"315\" y=\"138\" fill=\"#e21b3c\" font-size=\"15\" text-anchor=\"middle\">120 N<\/text><text x=\"140\" y=\"242\" fill=\"#1368ce\" font-size=\"14\" text-anchor=\"middle\">Ali 60 kg<\/text><text x=\"295\" y=\"242\" fill=\"#e21b3c\" font-size=\"14\" text-anchor=\"middle\">Ece 40 kg<\/text><\/svg>"}, {"q": "Kinetik sürtünme kuvveti nasıl hesaplanır?", "a": ["f = μk · m", "f = N / μk", "f = μk · N", "f = μk · v"], "c": 2, "t": 20, "img": "<svg viewBox=\"0 0 420 250\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"Montserrat,Arial\" font-weight=\"700\"><defs><marker id=\"mr\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#e21b3c\"/><\/marker><marker id=\"mb\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#1368ce\"/><\/marker><marker id=\"mg\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#26890c\"/><\/marker><marker id=\"mk\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#333\"/><\/marker><marker id=\"mo\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#d89e00\"/><\/marker><\/defs><line x1=\"40\" y1=\"170\" x2=\"380\" y2=\"170\" stroke=\"#333\" stroke-width=\"3\"/><line x1=\"40\" y1=\"170\" x2=\"31\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"54\" y1=\"170\" x2=\"45\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"68\" y1=\"170\" x2=\"59\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"82\" y1=\"170\" x2=\"73\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"96\" y1=\"170\" x2=\"87\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"110\" y1=\"170\" x2=\"101\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"124\" y1=\"170\" x2=\"115\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"138\" y1=\"170\" x2=\"129\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"152\" y1=\"170\" x2=\"143\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"166\" y1=\"170\" x2=\"157\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"180\" y1=\"170\" x2=\"171\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"194\" y1=\"170\" x2=\"185\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"208\" y1=\"170\" x2=\"199\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"222\" y1=\"170\" x2=\"213\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"236\" y1=\"170\" x2=\"227\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"250\" y1=\"170\" x2=\"241\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"264\" y1=\"170\" x2=\"255\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"278\" y1=\"170\" x2=\"269\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"292\" y1=\"170\" x2=\"283\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"306\" y1=\"170\" x2=\"297\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"320\" y1=\"170\" x2=\"311\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"334\" y1=\"170\" x2=\"325\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"348\" y1=\"170\" x2=\"339\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"362\" y1=\"170\" x2=\"353\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"376\" y1=\"170\" x2=\"367\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><rect x=\"150\" y=\"100\" width=\"110\" height=\"70\" rx=\"3\" fill=\"#ffd9a8\" stroke=\"#333\" stroke-width=\"2.5\"/><text x=\"205.0\" y=\"141.0\" fill=\"#333\" font-size=\"16\" text-anchor=\"middle\">m<\/text><line x1=\"260\" y1=\"135\" x2=\"350\" y2=\"135\" stroke=\"#1368ce\" stroke-width=\"4\" marker-end=\"url(#mb)\"/><text x=\"310\" y=\"125\" fill=\"#1368ce\" font-size=\"18\" text-anchor=\"middle\">F<\/text><line x1=\"150\" y1=\"160\" x2=\"80\" y2=\"160\" stroke=\"#e21b3c\" stroke-width=\"4\" marker-end=\"url(#mr)\"/><text x=\"100\" y=\"150\" fill=\"#e21b3c\" font-size=\"18\" text-anchor=\"middle\">f<\/text><line x1=\"205\" y1=\"100\" x2=\"205\" y2=\"30\" stroke=\"#26890c\" stroke-width=\"4\" marker-end=\"url(#mg)\"/><text x=\"225\" y=\"50\" fill=\"#26890c\" font-size=\"18\" text-anchor=\"middle\">N<\/text><line x1=\"205\" y1=\"170\" x2=\"205\" y2=\"235\" stroke=\"#333\" stroke-width=\"3\" marker-end=\"url(#mk)\"/><text x=\"230\" y=\"232\" fill=\"#333\" font-size=\"15\" text-anchor=\"middle\">mg<\/text><\/svg>"}, {"q": "20 kg kasa, μs = 0,5. Kaydırmaya başlamak için gereken en küçük yatay kuvvet? (g = 9,8)", "a": ["196 N", "98 N", "10 N", "49 N"], "c": 1, "t": 30, "img": "<svg viewBox=\"0 0 420 250\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"Montserrat,Arial\" font-weight=\"700\"><defs><marker id=\"mr\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#e21b3c\"/><\/marker><marker id=\"mb\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#1368ce\"/><\/marker><marker id=\"mg\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#26890c\"/><\/marker><marker id=\"mk\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#333\"/><\/marker><marker id=\"mo\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#d89e00\"/><\/marker><\/defs><line x1=\"40\" y1=\"170\" x2=\"380\" y2=\"170\" stroke=\"#333\" stroke-width=\"3\"/><line x1=\"40\" y1=\"170\" x2=\"31\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"54\" y1=\"170\" x2=\"45\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"68\" y1=\"170\" x2=\"59\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"82\" y1=\"170\" x2=\"73\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"96\" y1=\"170\" x2=\"87\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"110\" y1=\"170\" x2=\"101\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"124\" y1=\"170\" x2=\"115\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"138\" y1=\"170\" x2=\"129\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"152\" y1=\"170\" x2=\"143\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"166\" y1=\"170\" x2=\"157\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"180\" y1=\"170\" x2=\"171\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"194\" y1=\"170\" x2=\"185\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"208\" y1=\"170\" x2=\"199\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"222\" y1=\"170\" x2=\"213\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"236\" y1=\"170\" x2=\"227\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"250\" y1=\"170\" x2=\"241\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"264\" y1=\"170\" x2=\"255\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"278\" y1=\"170\" x2=\"269\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"292\" y1=\"170\" x2=\"283\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"306\" y1=\"170\" x2=\"297\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"320\" y1=\"170\" x2=\"311\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"334\" y1=\"170\" x2=\"325\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"348\" y1=\"170\" x2=\"339\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"362\" y1=\"170\" x2=\"353\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"376\" y1=\"170\" x2=\"367\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><rect x=\"160\" y=\"95\" width=\"100\" height=\"75\" rx=\"3\" fill=\"#ffd9a8\" stroke=\"#333\" stroke-width=\"2.5\"/><text x=\"210.0\" y=\"138.5\" fill=\"#333\" font-size=\"16\" text-anchor=\"middle\">20 kg<\/text><line x1=\"60\" y1=\"135\" x2=\"155\" y2=\"135\" stroke=\"#1368ce\" stroke-width=\"4\" marker-end=\"url(#mb)\"/><text x=\"100\" y=\"125\" fill=\"#1368ce\" font-size=\"18\" text-anchor=\"middle\">F = ?<\/text><text x=\"300\" y=\"60\" fill=\"#333\" font-size=\"17\" text-anchor=\"middle\">μs = 0,5<\/text><\/svg>"}, {"q": "Rampa eğimi artırılınca kutu 30°'de kaymaya başlıyor. μs kaçtır?", "a": ["sin 30° = 0,5", "cos 30° ≈ 0,87", "30", "tan 30° ≈ 0,58"], "c": 3, "t": 30, "img": "<svg viewBox=\"0 0 420 250\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"Montserrat,Arial\" font-weight=\"700\"><defs><marker id=\"mr\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#e21b3c\"/><\/marker><marker id=\"mb\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#1368ce\"/><\/marker><marker id=\"mg\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#26890c\"/><\/marker><marker id=\"mk\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#333\"/><\/marker><marker id=\"mo\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#d89e00\"/><\/marker><\/defs><polygon points=\"40,215 370,215 370,24\" fill=\"#eee\" stroke=\"#333\" stroke-width=\"2.5\"/><path d=\"M100,215 A60,60 0 0,0 92,185\" fill=\"none\" stroke=\"#333\" stroke-width=\"2\"/><text x=\"122\" y=\"203\" fill=\"#333\" font-size=\"16\" text-anchor=\"middle\">30°<\/text><g transform=\"translate(222,110) rotate(-30)\"><rect x=\"-30\" y=\"-40\" width=\"60\" height=\"40\" fill=\"#ffd9a8\" stroke=\"#333\" stroke-width=\"2.5\"/><text x=\"0\" y=\"-14\" fill=\"#333\" font-size=\"14\" text-anchor=\"middle\"><\/text><\/g><text x=\"130\" y=\"50\" fill=\"#333\" font-size=\"16\" text-anchor=\"middle\">tam kaymak üzere<\/text><\/svg>"}, {"q": "Yatay zeminde yalnızca sürtünmeyle yavaşlayan cismin ivmesi nedir?", "a": ["a = −μk · m", "a = −g", "a = −μs · g", "a = −μk · g"], "c": 3, "t": 20, "img": "<svg viewBox=\"0 0 420 250\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"Montserrat,Arial\" font-weight=\"700\"><defs><marker id=\"mr\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#e21b3c\"/><\/marker><marker id=\"mb\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#1368ce\"/><\/marker><marker id=\"mg\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#26890c\"/><\/marker><marker id=\"mk\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#333\"/><\/marker><marker id=\"mo\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#d89e00\"/><\/marker><\/defs><line x1=\"30\" y1=\"170\" x2=\"400\" y2=\"170\" stroke=\"#333\" stroke-width=\"3\"/><line x1=\"30\" y1=\"170\" x2=\"21\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"44\" y1=\"170\" x2=\"35\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"58\" y1=\"170\" x2=\"49\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"72\" y1=\"170\" x2=\"63\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"86\" y1=\"170\" x2=\"77\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"100\" y1=\"170\" x2=\"91\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"114\" y1=\"170\" x2=\"105\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"128\" y1=\"170\" x2=\"119\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"142\" y1=\"170\" x2=\"133\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"156\" y1=\"170\" x2=\"147\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"170\" y1=\"170\" x2=\"161\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"184\" y1=\"170\" x2=\"175\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"198\" y1=\"170\" x2=\"189\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"212\" y1=\"170\" x2=\"203\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"226\" y1=\"170\" x2=\"217\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"240\" y1=\"170\" x2=\"231\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"254\" y1=\"170\" x2=\"245\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"268\" y1=\"170\" x2=\"259\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"282\" y1=\"170\" x2=\"273\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"296\" y1=\"170\" x2=\"287\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"310\" y1=\"170\" x2=\"301\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"324\" y1=\"170\" x2=\"315\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"338\" y1=\"170\" x2=\"329\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"352\" y1=\"170\" x2=\"343\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"366\" y1=\"170\" x2=\"357\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"380\" y1=\"170\" x2=\"371\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"394\" y1=\"170\" x2=\"385\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><rect x=\"150\" y=\"110\" width=\"80\" height=\"60\" rx=\"3\" fill=\"#ffd9a8\" stroke=\"#333\" stroke-width=\"2.5\"/><line x1=\"240\" y1=\"95\" x2=\"330\" y2=\"95\" stroke=\"#1368ce\" stroke-width=\"4\" marker-end=\"url(#mb)\"/><text x=\"285\" y=\"85\" fill=\"#1368ce\" font-size=\"18\" text-anchor=\"middle\">v<\/text><line x1=\"150\" y1=\"160\" x2=\"80\" y2=\"160\" stroke=\"#e21b3c\" stroke-width=\"4\" marker-end=\"url(#mr)\"/><text x=\"100\" y=\"150\" fill=\"#e21b3c\" font-size=\"16\" text-anchor=\"middle\">fk<\/text><rect x=\"320\" y=\"110\" width=\"80\" height=\"60\" rx=\"3\" fill=\"#fff\" stroke=\"#333\" stroke-width=\"2.5\"/><text x=\"360\" y=\"100\" fill=\"#333\" font-size=\"15\" text-anchor=\"middle\">v = 0<\/text><\/svg>"}, {"q": "Dairesel harekette merkezcil kuvvet formülü hangisidir?", "a": ["F = m·v / r", "F = m·v² / r", "F = m·r / v²", "F = m·v²·r"], "c": 1, "t": 20, "img": "<svg viewBox=\"0 0 420 250\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"Montserrat,Arial\" font-weight=\"700\"><defs><marker id=\"mr\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#e21b3c\"/><\/marker><marker id=\"mb\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#1368ce\"/><\/marker><marker id=\"mg\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#26890c\"/><\/marker><marker id=\"mk\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#333\"/><\/marker><marker id=\"mo\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#d89e00\"/><\/marker><\/defs><circle cx=\"210\" cy=\"130\" r=\"95\" fill=\"none\" stroke=\"#999\" stroke-width=\"2\" stroke-dasharray=\"6 6\"/><circle cx=\"210\" cy=\"130\" r=\"4\" fill=\"#333\"/><circle cx=\"277\" cy=\"63\" r=\"12\" fill=\"#1368ce\"/><line x1=\"277\" y1=\"63\" x2=\"215\" y2=\"125\" stroke=\"#e21b3c\" stroke-width=\"4\" marker-end=\"url(#mr)\"/><text x=\"260\" y=\"110\" fill=\"#e21b3c\" font-size=\"18\" text-anchor=\"middle\">F<\/text><line x1=\"277\" y1=\"63\" x2=\"340\" y2=\"126\" stroke=\"#1368ce\" stroke-width=\"4\" marker-end=\"url(#mb)\"/><text x=\"345\" y=\"120\" fill=\"#1368ce\" font-size=\"18\" text-anchor=\"middle\">v<\/text><text x=\"230\" y=\"150\" fill=\"#333\" font-size=\"16\" text-anchor=\"middle\">r<\/text><\/svg>"}, {"q": "1200 kg araç 50 m yarıçaplı virajı 15 m/s ile dönüyor. Gereken merkezcil kuvvet?", "a": ["360 N", "18 000 N", "5400 N", "270 N"], "c": 2, "t": 60, "img": "<svg viewBox=\"0 0 420 250\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"Montserrat,Arial\" font-weight=\"700\"><defs><marker id=\"mr\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#e21b3c\"/><\/marker><marker id=\"mb\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#1368ce\"/><\/marker><marker id=\"mg\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#26890c\"/><\/marker><marker id=\"mk\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#333\"/><\/marker><marker id=\"mo\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#d89e00\"/><\/marker><\/defs><path d=\"M60,230 A170,170 0 0,1 230,60\" fill=\"none\" stroke=\"#bbb\" stroke-width=\"38\"/><circle cx=\"230\" cy=\"230\" r=\"4\" fill=\"#333\"/><line x1=\"230\" y1=\"230\" x2=\"110\" y2=\"110\" stroke=\"#333\" stroke-dasharray=\"5 5\" stroke-width=\"2\"/><text x=\"150\" y=\"190\" fill=\"#333\" font-size=\"15\" text-anchor=\"middle\">r = 50 m<\/text><rect x=\"96\" y=\"94\" width=\"34\" height=\"20\" rx=\"4\" fill=\"#1368ce\" transform=\"rotate(-45 113 104)\"/><line x1=\"118\" y1=\"118\" x2=\"165\" y2=\"165\" stroke=\"#26890c\" stroke-width=\"4\" marker-end=\"url(#mg)\"/><text x=\"330\" y=\"90\" fill=\"#333\" font-size=\"16\" text-anchor=\"middle\">1200 kg<\/text><text x=\"330\" y=\"115\" fill=\"#1368ce\" font-size=\"16\" text-anchor=\"middle\">15 m/s<\/text><\/svg>"}, {"q": "100 N kuvvet yatayla 37° açıyla kasayı 10 m çekiyor. Yapılan iş? (cos37° = 0,8)", "a": ["800 J", "1000 J", "600 J", "80 J"], "c": 0, "t": 30, "img": "<svg viewBox=\"0 0 420 250\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"Montserrat,Arial\" font-weight=\"700\"><defs><marker id=\"mr\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#e21b3c\"/><\/marker><marker id=\"mb\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#1368ce\"/><\/marker><marker id=\"mg\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#26890c\"/><\/marker><marker id=\"mk\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#333\"/><\/marker><marker id=\"mo\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#d89e00\"/><\/marker><\/defs><line x1=\"30\" y1=\"180\" x2=\"400\" y2=\"180\" stroke=\"#333\" stroke-width=\"3\"/><line x1=\"30\" y1=\"180\" x2=\"21\" y2=\"189\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"44\" y1=\"180\" x2=\"35\" y2=\"189\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"58\" y1=\"180\" x2=\"49\" y2=\"189\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"72\" y1=\"180\" x2=\"63\" y2=\"189\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"86\" y1=\"180\" x2=\"77\" y2=\"189\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"100\" y1=\"180\" x2=\"91\" y2=\"189\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"114\" y1=\"180\" x2=\"105\" y2=\"189\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"128\" y1=\"180\" x2=\"119\" y2=\"189\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"142\" y1=\"180\" x2=\"133\" y2=\"189\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"156\" y1=\"180\" x2=\"147\" y2=\"189\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"170\" y1=\"180\" x2=\"161\" y2=\"189\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"184\" y1=\"180\" x2=\"175\" y2=\"189\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"198\" y1=\"180\" x2=\"189\" y2=\"189\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"212\" y1=\"180\" x2=\"203\" y2=\"189\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"226\" y1=\"180\" x2=\"217\" y2=\"189\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"240\" y1=\"180\" x2=\"231\" y2=\"189\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"254\" y1=\"180\" x2=\"245\" y2=\"189\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"268\" y1=\"180\" x2=\"259\" y2=\"189\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"282\" y1=\"180\" x2=\"273\" y2=\"189\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"296\" y1=\"180\" x2=\"287\" y2=\"189\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"310\" y1=\"180\" x2=\"301\" y2=\"189\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"324\" y1=\"180\" x2=\"315\" y2=\"189\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"338\" y1=\"180\" x2=\"329\" y2=\"189\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"352\" y1=\"180\" x2=\"343\" y2=\"189\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"366\" y1=\"180\" x2=\"357\" y2=\"189\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"380\" y1=\"180\" x2=\"371\" y2=\"189\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"394\" y1=\"180\" x2=\"385\" y2=\"189\" stroke=\"#999\" stroke-width=\"1.5\"/><rect x=\"80\" y=\"120\" width=\"90\" height=\"60\" rx=\"3\" fill=\"#ffd9a8\" stroke=\"#333\" stroke-width=\"2.5\"/><line x1=\"170\" y1=\"140\" x2=\"300\" y2=\"42\" stroke=\"#1368ce\" stroke-width=\"4\" marker-end=\"url(#mb)\"/><text x=\"320\" y=\"40\" fill=\"#1368ce\" font-size=\"16\" text-anchor=\"middle\">100 N<\/text><line x1=\"170\" y1=\"140\" x2=\"280\" y2=\"140\" stroke=\"#999\" stroke-dasharray=\"5 5\"/><path d=\"M220,140 A50,50 0 0,0 210,110\" fill=\"none\" stroke=\"#333\" stroke-width=\"2\"/><text x=\"240\" y=\"130\" fill=\"#333\" font-size=\"15\" text-anchor=\"middle\">37°<\/text><line x1=\"80\" y1=\"215\" x2=\"380\" y2=\"215\" stroke=\"#333\" stroke-width=\"2\" marker-end=\"url(#mk)\"/><text x=\"230\" y=\"240\" fill=\"#333\" font-size=\"15\" text-anchor=\"middle\">d = 10 m<\/text><\/svg>"}, {"q": "Yatay zeminde hareket eden bir kasaya ağırlığının yaptığı iş nedir?", "a": ["m·g·d", "−m·g·d", "Sıfır", "Hıza bağlıdır"], "c": 2, "t": 20, "img": "<svg viewBox=\"0 0 420 250\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"Montserrat,Arial\" font-weight=\"700\"><defs><marker id=\"mr\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#e21b3c\"/><\/marker><marker id=\"mb\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#1368ce\"/><\/marker><marker id=\"mg\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#26890c\"/><\/marker><marker id=\"mk\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#333\"/><\/marker><marker id=\"mo\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#d89e00\"/><\/marker><\/defs><line x1=\"30\" y1=\"170\" x2=\"400\" y2=\"170\" stroke=\"#333\" stroke-width=\"3\"/><line x1=\"30\" y1=\"170\" x2=\"21\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"44\" y1=\"170\" x2=\"35\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"58\" y1=\"170\" x2=\"49\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"72\" y1=\"170\" x2=\"63\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"86\" y1=\"170\" x2=\"77\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"100\" y1=\"170\" x2=\"91\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"114\" y1=\"170\" x2=\"105\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"128\" y1=\"170\" x2=\"119\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"142\" y1=\"170\" x2=\"133\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"156\" y1=\"170\" x2=\"147\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"170\" y1=\"170\" x2=\"161\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"184\" y1=\"170\" x2=\"175\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"198\" y1=\"170\" x2=\"189\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"212\" y1=\"170\" x2=\"203\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"226\" y1=\"170\" x2=\"217\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"240\" y1=\"170\" x2=\"231\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"254\" y1=\"170\" x2=\"245\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"268\" y1=\"170\" x2=\"259\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"282\" y1=\"170\" x2=\"273\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"296\" y1=\"170\" x2=\"287\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"310\" y1=\"170\" x2=\"301\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"324\" y1=\"170\" x2=\"315\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"338\" y1=\"170\" x2=\"329\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"352\" y1=\"170\" x2=\"343\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"366\" y1=\"170\" x2=\"357\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"380\" y1=\"170\" x2=\"371\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"394\" y1=\"170\" x2=\"385\" y2=\"179\" stroke=\"#999\" stroke-width=\"1.5\"/><rect x=\"150\" y=\"110\" width=\"90\" height=\"60\" rx=\"3\" fill=\"#ffd9a8\" stroke=\"#333\" stroke-width=\"2.5\"/><line x1=\"240\" y1=\"95\" x2=\"340\" y2=\"95\" stroke=\"#1368ce\" stroke-width=\"4\" marker-end=\"url(#mb)\"/><text x=\"290\" y=\"85\" fill=\"#1368ce\" font-size=\"15\" text-anchor=\"middle\">hareket<\/text><line x1=\"195\" y1=\"140\" x2=\"195\" y2=\"235\" stroke=\"#e21b3c\" stroke-width=\"4\" marker-end=\"url(#mr)\"/><text x=\"225\" y=\"230\" fill=\"#e21b3c\" font-size=\"18\" text-anchor=\"middle\">W<\/text><\/svg>"}, {"q": "1200 kg kütleli araç 20 m/s hızla gidiyor. Kinetik enerjisi kaçtır?", "a": ["240 kJ", "12 kJ", "24 kJ", "480 kJ"], "c": 0, "t": 30, "img": "<svg viewBox=\"0 0 420 250\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"Montserrat,Arial\" font-weight=\"700\"><defs><marker id=\"mr\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#e21b3c\"/><\/marker><marker id=\"mb\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#1368ce\"/><\/marker><marker id=\"mg\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#26890c\"/><\/marker><marker id=\"mk\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#333\"/><\/marker><marker id=\"mo\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#d89e00\"/><\/marker><\/defs><line x1=\"20\" y1=\"190\" x2=\"400\" y2=\"190\" stroke=\"#333\" stroke-width=\"3\"/><line x1=\"20\" y1=\"190\" x2=\"11\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"34\" y1=\"190\" x2=\"25\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"48\" y1=\"190\" x2=\"39\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"62\" y1=\"190\" x2=\"53\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"76\" y1=\"190\" x2=\"67\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"90\" y1=\"190\" x2=\"81\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"104\" y1=\"190\" x2=\"95\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"118\" y1=\"190\" x2=\"109\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"132\" y1=\"190\" x2=\"123\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"146\" y1=\"190\" x2=\"137\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"160\" y1=\"190\" x2=\"151\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"174\" y1=\"190\" x2=\"165\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"188\" y1=\"190\" x2=\"179\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"202\" y1=\"190\" x2=\"193\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"216\" y1=\"190\" x2=\"207\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"230\" y1=\"190\" x2=\"221\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"244\" y1=\"190\" x2=\"235\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"258\" y1=\"190\" x2=\"249\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"272\" y1=\"190\" x2=\"263\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"286\" y1=\"190\" x2=\"277\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"300\" y1=\"190\" x2=\"291\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"314\" y1=\"190\" x2=\"305\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"328\" y1=\"190\" x2=\"319\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"342\" y1=\"190\" x2=\"333\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"356\" y1=\"190\" x2=\"347\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"370\" y1=\"190\" x2=\"361\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"384\" y1=\"190\" x2=\"375\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"398\" y1=\"190\" x2=\"389\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><path d=\"M130,178 h110 v-22 h-22 l-16,-22 h-44 l-16,22 h-12 z\" fill=\"#9fc3f5\" stroke=\"#333\" stroke-width=\"2.5\"/><circle cx=\"155\" cy=\"180\" r=\"11\" fill=\"#333\"/><circle cx=\"215\" cy=\"180\" r=\"11\" fill=\"#333\"/><line x1=\"250\" y1=\"130\" x2=\"350\" y2=\"130\" stroke=\"#1368ce\" stroke-width=\"4\" marker-end=\"url(#mb)\"/><text x=\"300\" y=\"118\" fill=\"#1368ce\" font-size=\"18\" text-anchor=\"middle\">20 m/s<\/text><text x=\"185\" y=\"110\" fill=\"#333\" font-size=\"16\" text-anchor=\"middle\">1200 kg<\/text><\/svg>"}, {"q": "Bir aracın hızı iki katına çıkarsa kinetik enerjisi ne olur?", "a": ["2 katına çıkar", "4 katına çıkar", "Değişmez", "Yarıya iner"], "c": 1, "t": 20, "img": "<svg viewBox=\"0 0 420 250\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"Montserrat,Arial\" font-weight=\"700\"><defs><marker id=\"mr\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#e21b3c\"/><\/marker><marker id=\"mb\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#1368ce\"/><\/marker><marker id=\"mg\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#26890c\"/><\/marker><marker id=\"mk\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#333\"/><\/marker><marker id=\"mo\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#d89e00\"/><\/marker><\/defs><line x1=\"20\" y1=\"200\" x2=\"400\" y2=\"200\" stroke=\"#333\" stroke-width=\"3\"/><line x1=\"20\" y1=\"200\" x2=\"11\" y2=\"209\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"34\" y1=\"200\" x2=\"25\" y2=\"209\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"48\" y1=\"200\" x2=\"39\" y2=\"209\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"62\" y1=\"200\" x2=\"53\" y2=\"209\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"76\" y1=\"200\" x2=\"67\" y2=\"209\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"90\" y1=\"200\" x2=\"81\" y2=\"209\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"104\" y1=\"200\" x2=\"95\" y2=\"209\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"118\" y1=\"200\" x2=\"109\" y2=\"209\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"132\" y1=\"200\" x2=\"123\" y2=\"209\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"146\" y1=\"200\" x2=\"137\" y2=\"209\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"160\" y1=\"200\" x2=\"151\" y2=\"209\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"174\" y1=\"200\" x2=\"165\" y2=\"209\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"188\" y1=\"200\" x2=\"179\" y2=\"209\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"202\" y1=\"200\" x2=\"193\" y2=\"209\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"216\" y1=\"200\" x2=\"207\" y2=\"209\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"230\" y1=\"200\" x2=\"221\" y2=\"209\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"244\" y1=\"200\" x2=\"235\" y2=\"209\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"258\" y1=\"200\" x2=\"249\" y2=\"209\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"272\" y1=\"200\" x2=\"263\" y2=\"209\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"286\" y1=\"200\" x2=\"277\" y2=\"209\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"300\" y1=\"200\" x2=\"291\" y2=\"209\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"314\" y1=\"200\" x2=\"305\" y2=\"209\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"328\" y1=\"200\" x2=\"319\" y2=\"209\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"342\" y1=\"200\" x2=\"333\" y2=\"209\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"356\" y1=\"200\" x2=\"347\" y2=\"209\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"370\" y1=\"200\" x2=\"361\" y2=\"209\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"384\" y1=\"200\" x2=\"375\" y2=\"209\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"398\" y1=\"200\" x2=\"389\" y2=\"209\" stroke=\"#999\" stroke-width=\"1.5\"/><path d=\"M40,118 h110 v-22 h-22 l-16,-22 h-44 l-16,22 h-12 z\" fill=\"#9fc3f5\" stroke=\"#333\" stroke-width=\"2.5\"/><circle cx=\"65\" cy=\"120\" r=\"11\" fill=\"#333\"/><circle cx=\"125\" cy=\"120\" r=\"11\" fill=\"#333\"/><line x1=\"160\" y1=\"95\" x2=\"220\" y2=\"95\" stroke=\"#1368ce\" stroke-width=\"4\" marker-end=\"url(#mb)\"/><text x=\"190\" y=\"85\" fill=\"#1368ce\" font-size=\"18\" text-anchor=\"middle\">v<\/text><path d=\"M40,188 h110 v-22 h-22 l-16,-22 h-44 l-16,22 h-12 z\" fill=\"#c8f0b8\" stroke=\"#333\" stroke-width=\"2.5\"/><circle cx=\"65\" cy=\"190\" r=\"11\" fill=\"#333\"/><circle cx=\"125\" cy=\"190\" r=\"11\" fill=\"#333\"/><line x1=\"160\" y1=\"165\" x2=\"280\" y2=\"165\" stroke=\"#26890c\" stroke-width=\"4\" marker-end=\"url(#mg)\"/><text x=\"220\" y=\"155\" fill=\"#26890c\" font-size=\"18\" text-anchor=\"middle\">2v<\/text><\/svg>"}, {"q": "20 m yükseklikten bırakılan tuğla yere hangi hızla çarpar? (g = 9,8, hava direnci yok)", "a": ["20 m/s", "392 m/s", "9,8 m/s", "≈ 19,8 m/s"], "c": 3, "t": 60, "img": "<svg viewBox=\"0 0 420 250\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"Montserrat,Arial\" font-weight=\"700\"><defs><marker id=\"mr\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#e21b3c\"/><\/marker><marker id=\"mb\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#1368ce\"/><\/marker><marker id=\"mg\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#26890c\"/><\/marker><marker id=\"mk\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#333\"/><\/marker><marker id=\"mo\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#d89e00\"/><\/marker><\/defs><rect x=\"60\" y=\"30\" width=\"80\" height=\"10\" fill=\"#999\"/><line x1=\"70\" y1=\"40\" x2=\"70\" y2=\"220\" stroke=\"#999\" stroke-width=\"6\"/><line x1=\"130\" y1=\"40\" x2=\"130\" y2=\"220\" stroke=\"#999\" stroke-width=\"6\"/><rect x=\"160\" y=\"25\" width=\"34\" height=\"16\" fill=\"#d9534f\"/><line x1=\"177\" y1=\"45\" x2=\"177\" y2=\"215\" stroke=\"#333\" stroke-dasharray=\"6 6\"/><line x1=\"230\" y1=\"220\" x2=\"230\" y2=\"30\" stroke=\"#333\" stroke-width=\"2\" marker-end=\"url(#mk)\"/><line x1=\"230\" y1=\"30\" x2=\"230\" y2=\"220\" stroke=\"#333\" stroke-width=\"2\" marker-end=\"url(#mk)\"/><text x=\"270\" y=\"130\" fill=\"#333\" font-size=\"18\" text-anchor=\"middle\">20 m<\/text><line x1=\"30\" y1=\"222\" x2=\"400\" y2=\"222\" stroke=\"#333\" stroke-width=\"3\"/><line x1=\"30\" y1=\"222\" x2=\"21\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"44\" y1=\"222\" x2=\"35\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"58\" y1=\"222\" x2=\"49\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"72\" y1=\"222\" x2=\"63\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"86\" y1=\"222\" x2=\"77\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"100\" y1=\"222\" x2=\"91\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"114\" y1=\"222\" x2=\"105\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"128\" y1=\"222\" x2=\"119\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"142\" y1=\"222\" x2=\"133\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"156\" y1=\"222\" x2=\"147\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"170\" y1=\"222\" x2=\"161\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"184\" y1=\"222\" x2=\"175\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"198\" y1=\"222\" x2=\"189\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"212\" y1=\"222\" x2=\"203\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"226\" y1=\"222\" x2=\"217\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"240\" y1=\"222\" x2=\"231\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"254\" y1=\"222\" x2=\"245\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"268\" y1=\"222\" x2=\"259\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"282\" y1=\"222\" x2=\"273\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"296\" y1=\"222\" x2=\"287\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"310\" y1=\"222\" x2=\"301\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"324\" y1=\"222\" x2=\"315\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"338\" y1=\"222\" x2=\"329\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"352\" y1=\"222\" x2=\"343\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"366\" y1=\"222\" x2=\"357\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"380\" y1=\"222\" x2=\"371\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"394\" y1=\"222\" x2=\"385\" y2=\"231\" stroke=\"#999\" stroke-width=\"1.5\"/><text x=\"330\" y=\"60\" fill=\"#333\" font-size=\"16\" text-anchor=\"middle\">v₀ = 0<\/text><\/svg>"}]}, "ilk4": {"title": "Vektörler, Tek ve İki Boyutta Hareket, Newton", "qs": [{"q": "Aşağıdakilerden hangisi vektörel bir büyüklüktür?", "a": ["Kütle", "Zaman", "Hız", "Sıcaklık"], "c": 2, "t": 20}, {"q": "A = (3, 4) vektörünün büyüklüğü kaçtır?", "a": ["5", "7", "12", "25"], "c": 0, "t": 20, "img": "<svg viewBox=\"0 0 440 250\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"Montserrat,Arial\" font-weight=\"700\"><defs><marker id=\"mr\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#e21b3c\"/><\/marker><marker id=\"mb\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#1368ce\"/><\/marker><marker id=\"mg\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#26890c\"/><\/marker><marker id=\"mk\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#333\"/><\/marker><marker id=\"mo\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#d89e00\"/><\/marker><\/defs><line x1=\"40\" y1=\"-4\" x2=\"40\" y2=\"220\" stroke=\"#ddd\"/><line x1=\"72\" y1=\"-4\" x2=\"72\" y2=\"220\" stroke=\"#ddd\"/><line x1=\"104\" y1=\"-4\" x2=\"104\" y2=\"220\" stroke=\"#ddd\"/><line x1=\"136\" y1=\"-4\" x2=\"136\" y2=\"220\" stroke=\"#ddd\"/><line x1=\"168\" y1=\"-4\" x2=\"168\" y2=\"220\" stroke=\"#ddd\"/><line x1=\"200\" y1=\"-4\" x2=\"200\" y2=\"220\" stroke=\"#ddd\"/><line x1=\"232\" y1=\"-4\" x2=\"232\" y2=\"220\" stroke=\"#ddd\"/><line x1=\"264\" y1=\"-4\" x2=\"264\" y2=\"220\" stroke=\"#ddd\"/><line x1=\"296\" y1=\"-4\" x2=\"296\" y2=\"220\" stroke=\"#ddd\"/><line x1=\"328\" y1=\"-4\" x2=\"328\" y2=\"220\" stroke=\"#ddd\"/><line x1=\"360\" y1=\"-4\" x2=\"360\" y2=\"220\" stroke=\"#ddd\"/><line x1=\"40\" y1=\"220\" x2=\"360\" y2=\"220\" stroke=\"#ddd\"/><line x1=\"40\" y1=\"188\" x2=\"360\" y2=\"188\" stroke=\"#ddd\"/><line x1=\"40\" y1=\"156\" x2=\"360\" y2=\"156\" stroke=\"#ddd\"/><line x1=\"40\" y1=\"124\" x2=\"360\" y2=\"124\" stroke=\"#ddd\"/><line x1=\"40\" y1=\"92\" x2=\"360\" y2=\"92\" stroke=\"#ddd\"/><line x1=\"40\" y1=\"60\" x2=\"360\" y2=\"60\" stroke=\"#ddd\"/><line x1=\"40\" y1=\"28\" x2=\"360\" y2=\"28\" stroke=\"#ddd\"/><line x1=\"40\" y1=\"-4\" x2=\"360\" y2=\"-4\" stroke=\"#ddd\"/><line x1=\"40\" y1=\"188\" x2=\"370\" y2=\"188\" stroke=\"#333\" stroke-width=\"2\" marker-end=\"url(#mk)\"/><line x1=\"136\" y1=\"220\" x2=\"136\" y2=\"-14\" stroke=\"#333\" stroke-width=\"2\" marker-end=\"url(#mk)\"/><text x=\"368\" y=\"208\" fill=\"#333\" font-size=\"15\" text-anchor=\"middle\">x<\/text><text x=\"122\" y=\"-8\" fill=\"#333\" font-size=\"15\" text-anchor=\"middle\">y<\/text><line x1=\"136\" y1=\"188\" x2=\"232\" y2=\"60\" stroke=\"#e21b3c\" stroke-width=\"4\" marker-end=\"url(#mr)\"/><text x=\"244\" y=\"54\" fill=\"#e21b3c\" font-size=\"18\" text-anchor=\"start\">A<\/text><\/svg>"}, {"q": "A = (5, 2) ve B = (−2, 2) ise A + B vektörü nedir?", "a": ["(7, 0)", "(3, 0)", "(7, 4)", "(3, 4)"], "c": 3, "t": 30, "img": "<svg viewBox=\"0 0 440 250\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"Montserrat,Arial\" font-weight=\"700\"><defs><marker id=\"mr\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#e21b3c\"/><\/marker><marker id=\"mb\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#1368ce\"/><\/marker><marker id=\"mg\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#26890c\"/><\/marker><marker id=\"mk\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#333\"/><\/marker><marker id=\"mo\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#d89e00\"/><\/marker><\/defs><line x1=\"40\" y1=\"-4\" x2=\"40\" y2=\"220\" stroke=\"#ddd\"/><line x1=\"72\" y1=\"-4\" x2=\"72\" y2=\"220\" stroke=\"#ddd\"/><line x1=\"104\" y1=\"-4\" x2=\"104\" y2=\"220\" stroke=\"#ddd\"/><line x1=\"136\" y1=\"-4\" x2=\"136\" y2=\"220\" stroke=\"#ddd\"/><line x1=\"168\" y1=\"-4\" x2=\"168\" y2=\"220\" stroke=\"#ddd\"/><line x1=\"200\" y1=\"-4\" x2=\"200\" y2=\"220\" stroke=\"#ddd\"/><line x1=\"232\" y1=\"-4\" x2=\"232\" y2=\"220\" stroke=\"#ddd\"/><line x1=\"264\" y1=\"-4\" x2=\"264\" y2=\"220\" stroke=\"#ddd\"/><line x1=\"296\" y1=\"-4\" x2=\"296\" y2=\"220\" stroke=\"#ddd\"/><line x1=\"328\" y1=\"-4\" x2=\"328\" y2=\"220\" stroke=\"#ddd\"/><line x1=\"360\" y1=\"-4\" x2=\"360\" y2=\"220\" stroke=\"#ddd\"/><line x1=\"40\" y1=\"220\" x2=\"360\" y2=\"220\" stroke=\"#ddd\"/><line x1=\"40\" y1=\"188\" x2=\"360\" y2=\"188\" stroke=\"#ddd\"/><line x1=\"40\" y1=\"156\" x2=\"360\" y2=\"156\" stroke=\"#ddd\"/><line x1=\"40\" y1=\"124\" x2=\"360\" y2=\"124\" stroke=\"#ddd\"/><line x1=\"40\" y1=\"92\" x2=\"360\" y2=\"92\" stroke=\"#ddd\"/><line x1=\"40\" y1=\"60\" x2=\"360\" y2=\"60\" stroke=\"#ddd\"/><line x1=\"40\" y1=\"28\" x2=\"360\" y2=\"28\" stroke=\"#ddd\"/><line x1=\"40\" y1=\"-4\" x2=\"360\" y2=\"-4\" stroke=\"#ddd\"/><line x1=\"40\" y1=\"188\" x2=\"370\" y2=\"188\" stroke=\"#333\" stroke-width=\"2\" marker-end=\"url(#mk)\"/><line x1=\"136\" y1=\"220\" x2=\"136\" y2=\"-14\" stroke=\"#333\" stroke-width=\"2\" marker-end=\"url(#mk)\"/><text x=\"368\" y=\"208\" fill=\"#333\" font-size=\"15\" text-anchor=\"middle\">x<\/text><text x=\"122\" y=\"-8\" fill=\"#333\" font-size=\"15\" text-anchor=\"middle\">y<\/text><line x1=\"136\" y1=\"188\" x2=\"296\" y2=\"124\" stroke=\"#1368ce\" stroke-width=\"4\" marker-end=\"url(#mb)\"/><text x=\"308\" y=\"118\" fill=\"#1368ce\" font-size=\"18\" text-anchor=\"start\">A<\/text><line x1=\"136\" y1=\"188\" x2=\"72\" y2=\"124\" stroke=\"#e21b3c\" stroke-width=\"4\" marker-end=\"url(#mr)\"/><text x=\"84\" y=\"118\" fill=\"#e21b3c\" font-size=\"18\" text-anchor=\"start\">B<\/text><\/svg>"}, {"q": "A = 2i + 3j ve B = 4i − j ise A · B skaler çarpımı kaçtır?", "a": ["11", "5", "8", "−5"], "c": 1, "t": 30}, {"q": "i × j vektörel çarpımının sonucu nedir?", "a": ["−k", "k", "0", "1"], "c": 1, "t": 20, "img": "<svg viewBox=\"0 0 420 250\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"Montserrat,Arial\" font-weight=\"700\"><defs><marker id=\"mr\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#e21b3c\"/><\/marker><marker id=\"mb\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#1368ce\"/><\/marker><marker id=\"mg\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#26890c\"/><\/marker><marker id=\"mk\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#333\"/><\/marker><marker id=\"mo\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#d89e00\"/><\/marker><\/defs><line x1=\"200\" y1=\"170\" x2=\"330\" y2=\"170\" stroke=\"#e21b3c\" stroke-width=\"4\" marker-end=\"url(#mr)\"/><text x=\"345\" y=\"176\" fill=\"#e21b3c\" font-size=\"20\" text-anchor=\"middle\">i<\/text><line x1=\"200\" y1=\"170\" x2=\"120\" y2=\"230\" stroke=\"#26890c\" stroke-width=\"4\" marker-end=\"url(#mg)\"/><text x=\"108\" y=\"240\" fill=\"#26890c\" font-size=\"20\" text-anchor=\"middle\">j<\/text><line x1=\"200\" y1=\"170\" x2=\"200\" y2=\"40\" stroke=\"#1368ce\" stroke-width=\"4\" marker-end=\"url(#mb)\"/><text x=\"200\" y=\"30\" fill=\"#1368ce\" font-size=\"20\" text-anchor=\"middle\">k<\/text><text x=\"330\" y=\"60\" fill=\"#333\" font-size=\"20\" text-anchor=\"middle\">i × j = ?<\/text><\/svg>"}, {"q": "Kuzeye 30 km, doğuya 40 km giden teknenin başlangıca uzaklığı kaç km'dir?", "a": ["70 km", "10 km", "35 km", "50 km"], "c": 3, "t": 30, "img": "<svg viewBox=\"0 0 420 250\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"Montserrat,Arial\" font-weight=\"700\"><defs><marker id=\"mr\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#e21b3c\"/><\/marker><marker id=\"mb\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#1368ce\"/><\/marker><marker id=\"mg\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#26890c\"/><\/marker><marker id=\"mk\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#333\"/><\/marker><marker id=\"mo\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#d89e00\"/><\/marker><\/defs><circle cx=\"120\" cy=\"210\" r=\"5\" fill=\"#333\"/><text x=\"100\" y=\"232\" fill=\"#333\" font-size=\"18\" text-anchor=\"middle\">A<\/text><line x1=\"120\" y1=\"210\" x2=\"120\" y2=\"60\" stroke=\"#1368ce\" stroke-width=\"4\" marker-end=\"url(#mb)\"/><text x=\"85\" y=\"140\" fill=\"#1368ce\" font-size=\"16\" text-anchor=\"middle\">30 km<\/text><line x1=\"120\" y1=\"60\" x2=\"320\" y2=\"60\" stroke=\"#e21b3c\" stroke-width=\"4\" marker-end=\"url(#mr)\"/><text x=\"220\" y=\"48\" fill=\"#e21b3c\" font-size=\"16\" text-anchor=\"middle\">40 km<\/text><line x1=\"120\" y1=\"210\" x2=\"320\" y2=\"60\" stroke=\"#999\" stroke-width=\"3\" stroke-dasharray=\"7 6\"/><text x=\"260\" y=\"160\" fill=\"#333\" font-size=\"30\" text-anchor=\"middle\">?<\/text><text x=\"380\" y=\"200\" fill=\"#333\" font-size=\"15\" text-anchor=\"middle\">K↑ D→<\/text><\/svg>"}, {"q": "Doğuya 100 m, sonra batıya 40 m koşan kişinin yer değiştirmesi nedir?", "a": ["60 m doğuya", "140 m doğuya", "40 m batıya", "100 m doğuya"], "c": 0, "t": 30, "img": "<svg viewBox=\"0 0 420 250\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"Montserrat,Arial\" font-weight=\"700\"><defs><marker id=\"mr\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#e21b3c\"/><\/marker><marker id=\"mb\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#1368ce\"/><\/marker><marker id=\"mg\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#26890c\"/><\/marker><marker id=\"mk\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#333\"/><\/marker><marker id=\"mo\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#d89e00\"/><\/marker><\/defs><line x1=\"40\" y1=\"170\" x2=\"400\" y2=\"170\" stroke=\"#333\" stroke-width=\"2\" marker-end=\"url(#mk)\"/><line x1=\"60\" y1=\"163\" x2=\"60\" y2=\"177\" stroke=\"#333\" stroke-width=\"2\"/><line x1=\"90\" y1=\"163\" x2=\"90\" y2=\"177\" stroke=\"#333\" stroke-width=\"2\"/><line x1=\"120\" y1=\"163\" x2=\"120\" y2=\"177\" stroke=\"#333\" stroke-width=\"2\"/><line x1=\"150\" y1=\"163\" x2=\"150\" y2=\"177\" stroke=\"#333\" stroke-width=\"2\"/><line x1=\"180\" y1=\"163\" x2=\"180\" y2=\"177\" stroke=\"#333\" stroke-width=\"2\"/><line x1=\"210\" y1=\"163\" x2=\"210\" y2=\"177\" stroke=\"#333\" stroke-width=\"2\"/><line x1=\"240\" y1=\"163\" x2=\"240\" y2=\"177\" stroke=\"#333\" stroke-width=\"2\"/><line x1=\"270\" y1=\"163\" x2=\"270\" y2=\"177\" stroke=\"#333\" stroke-width=\"2\"/><line x1=\"300\" y1=\"163\" x2=\"300\" y2=\"177\" stroke=\"#333\" stroke-width=\"2\"/><line x1=\"330\" y1=\"163\" x2=\"330\" y2=\"177\" stroke=\"#333\" stroke-width=\"2\"/><line x1=\"360\" y1=\"163\" x2=\"360\" y2=\"177\" stroke=\"#333\" stroke-width=\"2\"/><line x1=\"390\" y1=\"163\" x2=\"390\" y2=\"177\" stroke=\"#333\" stroke-width=\"2\"/><text x=\"60\" y=\"200\" fill=\"#333\" font-size=\"14\" text-anchor=\"middle\">0<\/text><text x=\"360\" y=\"200\" fill=\"#333\" font-size=\"14\" text-anchor=\"middle\">100 m<\/text><line x1=\"60\" y1=\"120\" x2=\"360\" y2=\"120\" stroke=\"#1368ce\" stroke-width=\"4\" marker-end=\"url(#mb)\"/><text x=\"210\" y=\"110\" fill=\"#1368ce\" font-size=\"16\" text-anchor=\"middle\">100 m doğu<\/text><line x1=\"360\" y1=\"145\" x2=\"240\" y2=\"145\" stroke=\"#e21b3c\" stroke-width=\"4\" marker-end=\"url(#mr)\"/><text x=\"300\" y=\"140\" fill=\"#e21b3c\" font-size=\"18\" text-anchor=\"middle\"><\/text><text x=\"300\" y=\"160\" fill=\"#e21b3c\" font-size=\"14\" text-anchor=\"middle\">40 m batı<\/text><\/svg>"}, {"q": "72 km/h kaç m/s'dir?", "a": ["72 m/s", "36 m/s", "20 m/s", "7,2 m/s"], "c": 2, "t": 20}, {"q": "Durgun hâlden 2 m/s² ivmeyle hızlanan araç 5 s sonra hangi hıza ulaşır?", "a": ["2,5 m/s", "7 m/s", "25 m/s", "10 m/s"], "c": 3, "t": 30, "img": "<svg viewBox=\"0 0 420 250\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"Montserrat,Arial\" font-weight=\"700\"><defs><marker id=\"mr\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#e21b3c\"/><\/marker><marker id=\"mb\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#1368ce\"/><\/marker><marker id=\"mg\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#26890c\"/><\/marker><marker id=\"mk\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#333\"/><\/marker><marker id=\"mo\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#d89e00\"/><\/marker><\/defs><line x1=\"20\" y1=\"190\" x2=\"400\" y2=\"190\" stroke=\"#333\" stroke-width=\"3\"/><line x1=\"20\" y1=\"190\" x2=\"11\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"34\" y1=\"190\" x2=\"25\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"48\" y1=\"190\" x2=\"39\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"62\" y1=\"190\" x2=\"53\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"76\" y1=\"190\" x2=\"67\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"90\" y1=\"190\" x2=\"81\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"104\" y1=\"190\" x2=\"95\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"118\" y1=\"190\" x2=\"109\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"132\" y1=\"190\" x2=\"123\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"146\" y1=\"190\" x2=\"137\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"160\" y1=\"190\" x2=\"151\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"174\" y1=\"190\" x2=\"165\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"188\" y1=\"190\" x2=\"179\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"202\" y1=\"190\" x2=\"193\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"216\" y1=\"190\" x2=\"207\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"230\" y1=\"190\" x2=\"221\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"244\" y1=\"190\" x2=\"235\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"258\" y1=\"190\" x2=\"249\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"272\" y1=\"190\" x2=\"263\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"286\" y1=\"190\" x2=\"277\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"300\" y1=\"190\" x2=\"291\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"314\" y1=\"190\" x2=\"305\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"328\" y1=\"190\" x2=\"319\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"342\" y1=\"190\" x2=\"333\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"356\" y1=\"190\" x2=\"347\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"370\" y1=\"190\" x2=\"361\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"384\" y1=\"190\" x2=\"375\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"398\" y1=\"190\" x2=\"389\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><path d=\"M40,178 h110 v-22 h-22 l-16,-22 h-44 l-16,22 h-12 z\" fill=\"#9fc3f5\" stroke=\"#333\" stroke-width=\"2.5\"/><circle cx=\"65\" cy=\"180\" r=\"11\" fill=\"#333\"/><circle cx=\"125\" cy=\"180\" r=\"11\" fill=\"#333\"/><line x1=\"160\" y1=\"130\" x2=\"250\" y2=\"130\" stroke=\"#26890c\" stroke-width=\"4\" marker-end=\"url(#mg)\"/><text x=\"205\" y=\"118\" fill=\"#26890c\" font-size=\"15\" text-anchor=\"middle\">a = 2 m/s²<\/text><text x=\"95\" y=\"110\" fill=\"#333\" font-size=\"15\" text-anchor=\"middle\">v₀ = 0<\/text><text x=\"330\" y=\"120\" fill=\"#333\" font-size=\"17\" text-anchor=\"middle\">t = 5 s<\/text><\/svg>"}, {"q": "20 m/s hızla giden araç 4 m/s² ile yavaşlarsa kaç metrede durur?", "a": ["80 m", "50 m", "40 m", "5 m"], "c": 1, "t": 60, "img": "<svg viewBox=\"0 0 420 250\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"Montserrat,Arial\" font-weight=\"700\"><defs><marker id=\"mr\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#e21b3c\"/><\/marker><marker id=\"mb\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#1368ce\"/><\/marker><marker id=\"mg\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#26890c\"/><\/marker><marker id=\"mk\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#333\"/><\/marker><marker id=\"mo\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#d89e00\"/><\/marker><\/defs><line x1=\"20\" y1=\"190\" x2=\"400\" y2=\"190\" stroke=\"#333\" stroke-width=\"3\"/><line x1=\"20\" y1=\"190\" x2=\"11\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"34\" y1=\"190\" x2=\"25\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"48\" y1=\"190\" x2=\"39\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"62\" y1=\"190\" x2=\"53\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"76\" y1=\"190\" x2=\"67\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"90\" y1=\"190\" x2=\"81\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"104\" y1=\"190\" x2=\"95\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"118\" y1=\"190\" x2=\"109\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"132\" y1=\"190\" x2=\"123\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"146\" y1=\"190\" x2=\"137\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"160\" y1=\"190\" x2=\"151\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"174\" y1=\"190\" x2=\"165\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"188\" y1=\"190\" x2=\"179\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"202\" y1=\"190\" x2=\"193\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"216\" y1=\"190\" x2=\"207\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"230\" y1=\"190\" x2=\"221\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"244\" y1=\"190\" x2=\"235\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"258\" y1=\"190\" x2=\"249\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"272\" y1=\"190\" x2=\"263\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"286\" y1=\"190\" x2=\"277\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"300\" y1=\"190\" x2=\"291\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"314\" y1=\"190\" x2=\"305\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"328\" y1=\"190\" x2=\"319\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"342\" y1=\"190\" x2=\"333\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"356\" y1=\"190\" x2=\"347\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"370\" y1=\"190\" x2=\"361\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"384\" y1=\"190\" x2=\"375\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"398\" y1=\"190\" x2=\"389\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><path d=\"M40,178 h110 v-22 h-22 l-16,-22 h-44 l-16,22 h-12 z\" fill=\"#9fc3f5\" stroke=\"#333\" stroke-width=\"2.5\"/><circle cx=\"65\" cy=\"180\" r=\"11\" fill=\"#333\"/><circle cx=\"125\" cy=\"180\" r=\"11\" fill=\"#333\"/><line x1=\"60\" y1=\"120\" x2=\"150\" y2=\"120\" stroke=\"#1368ce\" stroke-width=\"4\" marker-end=\"url(#mb)\"/><text x=\"105\" y=\"108\" fill=\"#1368ce\" font-size=\"15\" text-anchor=\"middle\">20 m/s<\/text><line x1=\"160\" y1=\"170\" x2=\"230\" y2=\"170\" stroke=\"#e21b3c\" stroke-width=\"4\" marker-end=\"url(#mr)\"/><text x=\"300\" y=\"140\" fill=\"#e21b3c\" font-size=\"15\" text-anchor=\"middle\">a = −4 m/s²<\/text><line x1=\"95\" y1=\"215\" x2=\"370\" y2=\"215\" stroke=\"#333\" stroke-width=\"2\"/><text x=\"230\" y=\"240\" fill=\"#333\" font-size=\"16\" text-anchor=\"middle\">d = ?<\/text><\/svg>"}, {"q": "Düşey yukarı atılan bir taş tepe noktasındayken hangisi doğrudur?", "a": ["Hız 0, ivme 0", "Hız en büyük", "Hız 0, ivme g (aşağı)", "İvme yukarı yönde"], "c": 2, "t": 20, "img": "<svg viewBox=\"0 0 420 250\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"Montserrat,Arial\" font-weight=\"700\"><defs><marker id=\"mr\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#e21b3c\"/><\/marker><marker id=\"mb\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#1368ce\"/><\/marker><marker id=\"mg\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#26890c\"/><\/marker><marker id=\"mk\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#333\"/><\/marker><marker id=\"mo\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#d89e00\"/><\/marker><\/defs><rect x=\"80\" y=\"110\" width=\"70\" height=\"115\" fill=\"#ddd\" stroke=\"#333\" stroke-width=\"2.5\"/><circle cx=\"140\" cy=\"100\" r=\"9\" fill=\"#333\"/><line x1=\"140\" y1=\"30\" x2=\"140\" y2=\"90\" stroke=\"#1368ce\" stroke-width=\"2\" stroke-dasharray=\"5 5\"/><circle cx=\"140\" cy=\"28\" r=\"7\" fill=\"#e21b3c\"/><text x=\"230\" y=\"32\" fill=\"#e21b3c\" font-size=\"16\" text-anchor=\"middle\">tepe: v = ?, a = ?<\/text><line x1=\"200\" y1=\"150\" x2=\"200\" y2=\"90\" stroke=\"#1368ce\" stroke-width=\"4\" marker-end=\"url(#mb)\"/><text x=\"225\" y=\"125\" fill=\"#1368ce\" font-size=\"16\" text-anchor=\"middle\">v₀<\/text><line x1=\"30\" y1=\"226\" x2=\"400\" y2=\"226\" stroke=\"#333\" stroke-width=\"3\"/><line x1=\"30\" y1=\"226\" x2=\"21\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"44\" y1=\"226\" x2=\"35\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"58\" y1=\"226\" x2=\"49\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"72\" y1=\"226\" x2=\"63\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"86\" y1=\"226\" x2=\"77\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"100\" y1=\"226\" x2=\"91\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"114\" y1=\"226\" x2=\"105\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"128\" y1=\"226\" x2=\"119\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"142\" y1=\"226\" x2=\"133\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"156\" y1=\"226\" x2=\"147\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"170\" y1=\"226\" x2=\"161\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"184\" y1=\"226\" x2=\"175\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"198\" y1=\"226\" x2=\"189\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"212\" y1=\"226\" x2=\"203\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"226\" y1=\"226\" x2=\"217\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"240\" y1=\"226\" x2=\"231\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"254\" y1=\"226\" x2=\"245\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"268\" y1=\"226\" x2=\"259\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"282\" y1=\"226\" x2=\"273\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"296\" y1=\"226\" x2=\"287\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"310\" y1=\"226\" x2=\"301\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"324\" y1=\"226\" x2=\"315\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"338\" y1=\"226\" x2=\"329\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"352\" y1=\"226\" x2=\"343\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"366\" y1=\"226\" x2=\"357\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"380\" y1=\"226\" x2=\"371\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"394\" y1=\"226\" x2=\"385\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><\/svg>"}, {"q": "Eğik atışta (hava direnci yok) hızın yatay bileşeni nasıl değişir?", "a": ["Sabit kalır", "Sürekli artar", "Sürekli azalır", "Tepe noktasında 0 olur"], "c": 0, "t": 20, "img": "<svg viewBox=\"0 0 420 250\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"Montserrat,Arial\" font-weight=\"700\"><defs><marker id=\"mr\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#e21b3c\"/><\/marker><marker id=\"mb\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#1368ce\"/><\/marker><marker id=\"mg\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#26890c\"/><\/marker><marker id=\"mk\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#333\"/><\/marker><marker id=\"mo\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#d89e00\"/><\/marker><\/defs><path d=\"M40,210 Q210,-40 380,210\" fill=\"none\" stroke=\"#e21b3c\" stroke-width=\"3\" stroke-dasharray=\"7 6\"/><line x1=\"40\" y1=\"210\" x2=\"100\" y2=\"150\" stroke=\"#1368ce\" stroke-width=\"4\" marker-end=\"url(#mb)\"/><line x1=\"95\" y1=\"140\" x2=\"140\" y2=\"140\" stroke=\"#26890c\" stroke-width=\"3\" marker-end=\"url(#mg)\"/><line x1=\"200\" y1=\"88\" x2=\"245\" y2=\"88\" stroke=\"#26890c\" stroke-width=\"3\" marker-end=\"url(#mg)\"/><line x1=\"305\" y1=\"140\" x2=\"350\" y2=\"140\" stroke=\"#26890c\" stroke-width=\"3\" marker-end=\"url(#mg)\"/><text x=\"320\" y=\"60\" fill=\"#26890c\" font-size=\"17\" text-anchor=\"middle\">vx = ?<\/text><line x1=\"20\" y1=\"212\" x2=\"400\" y2=\"212\" stroke=\"#333\" stroke-width=\"3\"/><line x1=\"20\" y1=\"212\" x2=\"11\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"34\" y1=\"212\" x2=\"25\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"48\" y1=\"212\" x2=\"39\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"62\" y1=\"212\" x2=\"53\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"76\" y1=\"212\" x2=\"67\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"90\" y1=\"212\" x2=\"81\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"104\" y1=\"212\" x2=\"95\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"118\" y1=\"212\" x2=\"109\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"132\" y1=\"212\" x2=\"123\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"146\" y1=\"212\" x2=\"137\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"160\" y1=\"212\" x2=\"151\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"174\" y1=\"212\" x2=\"165\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"188\" y1=\"212\" x2=\"179\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"202\" y1=\"212\" x2=\"193\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"216\" y1=\"212\" x2=\"207\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"230\" y1=\"212\" x2=\"221\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"244\" y1=\"212\" x2=\"235\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"258\" y1=\"212\" x2=\"249\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"272\" y1=\"212\" x2=\"263\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"286\" y1=\"212\" x2=\"277\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"300\" y1=\"212\" x2=\"291\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"314\" y1=\"212\" x2=\"305\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"328\" y1=\"212\" x2=\"319\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"342\" y1=\"212\" x2=\"333\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"356\" y1=\"212\" x2=\"347\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"370\" y1=\"212\" x2=\"361\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"384\" y1=\"212\" x2=\"375\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"398\" y1=\"212\" x2=\"389\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><\/svg>"}, {"q": "30 m/s hızla yatayla 53° açıyla atılan topun v₀y bileşeni kaç m/s'dir? (sin53°=0,8)", "a": ["24 m/s", "18 m/s", "30 m/s", "15 m/s"], "c": 0, "t": 30, "img": "<svg viewBox=\"0 0 420 250\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"Montserrat,Arial\" font-weight=\"700\"><defs><marker id=\"mr\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#e21b3c\"/><\/marker><marker id=\"mb\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#1368ce\"/><\/marker><marker id=\"mg\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#26890c\"/><\/marker><marker id=\"mk\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#333\"/><\/marker><marker id=\"mo\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#d89e00\"/><\/marker><\/defs><path d=\"M40,210 Q210,-40 380,210\" fill=\"none\" stroke=\"#e21b3c\" stroke-width=\"3\" stroke-dasharray=\"7 6\"/><line x1=\"40\" y1=\"210\" x2=\"110\" y2=\"117\" stroke=\"#1368ce\" stroke-width=\"4\" marker-end=\"url(#mb)\"/><text x=\"140\" y=\"110\" fill=\"#1368ce\" font-size=\"16\" text-anchor=\"middle\">30 m/s<\/text><path d=\"M90,210 A50,50 0 0,0 70,170\" fill=\"none\" stroke=\"#333\" stroke-width=\"2\"/><text x=\"100\" y=\"195\" fill=\"#333\" font-size=\"15\" text-anchor=\"middle\">53°<\/text><line x1=\"40\" y1=\"210\" x2=\"40\" y2=\"117\" stroke=\"#e21b3c\" stroke-width=\"3\" marker-end=\"url(#mr)\"/><text x=\"8\" y=\"140\" fill=\"#e21b3c\" font-size=\"14\" text-anchor=\"start\">v₀y<\/text><line x1=\"20\" y1=\"212\" x2=\"400\" y2=\"212\" stroke=\"#333\" stroke-width=\"3\"/><line x1=\"20\" y1=\"212\" x2=\"11\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"34\" y1=\"212\" x2=\"25\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"48\" y1=\"212\" x2=\"39\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"62\" y1=\"212\" x2=\"53\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"76\" y1=\"212\" x2=\"67\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"90\" y1=\"212\" x2=\"81\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"104\" y1=\"212\" x2=\"95\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"118\" y1=\"212\" x2=\"109\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"132\" y1=\"212\" x2=\"123\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"146\" y1=\"212\" x2=\"137\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"160\" y1=\"212\" x2=\"151\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"174\" y1=\"212\" x2=\"165\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"188\" y1=\"212\" x2=\"179\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"202\" y1=\"212\" x2=\"193\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"216\" y1=\"212\" x2=\"207\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"230\" y1=\"212\" x2=\"221\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"244\" y1=\"212\" x2=\"235\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"258\" y1=\"212\" x2=\"249\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"272\" y1=\"212\" x2=\"263\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"286\" y1=\"212\" x2=\"277\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"300\" y1=\"212\" x2=\"291\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"314\" y1=\"212\" x2=\"305\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"328\" y1=\"212\" x2=\"319\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"342\" y1=\"212\" x2=\"333\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"356\" y1=\"212\" x2=\"347\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"370\" y1=\"212\" x2=\"361\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"384\" y1=\"212\" x2=\"375\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"398\" y1=\"212\" x2=\"389\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><\/svg>"}, {"q": "44,1 m yükseklikten yatay atılan top kaç saniyede yere düşer? (g = 9,8 m/s²)", "a": ["2 s", "4,5 s", "3 s", "9 s"], "c": 2, "t": 60, "img": "<svg viewBox=\"0 0 420 250\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"Montserrat,Arial\" font-weight=\"700\"><defs><marker id=\"mr\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#e21b3c\"/><\/marker><marker id=\"mb\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#1368ce\"/><\/marker><marker id=\"mg\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#26890c\"/><\/marker><marker id=\"mk\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#333\"/><\/marker><marker id=\"mo\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#d89e00\"/><\/marker><\/defs><rect x=\"30\" y=\"40\" width=\"70\" height=\"185\" fill=\"#ddd\" stroke=\"#333\" stroke-width=\"2.5\"/><path d=\"M100,35 Q230,35 300,222\" fill=\"none\" stroke=\"#e21b3c\" stroke-width=\"3\" stroke-dasharray=\"7 6\"/><line x1=\"100\" y1=\"35\" x2=\"170\" y2=\"35\" stroke=\"#1368ce\" stroke-width=\"4\" marker-end=\"url(#mb)\"/><line x1=\"125\" y1=\"225\" x2=\"125\" y2=\"40\" stroke=\"#333\" stroke-width=\"2\" marker-end=\"url(#mk)\"/><line x1=\"125\" y1=\"40\" x2=\"125\" y2=\"225\" stroke=\"#333\" stroke-width=\"2\" marker-end=\"url(#mk)\"/><text x=\"160\" y=\"140\" fill=\"#333\" font-size=\"16\" text-anchor=\"middle\">44,1 m<\/text><line x1=\"20\" y1=\"226\" x2=\"400\" y2=\"226\" stroke=\"#333\" stroke-width=\"3\"/><line x1=\"20\" y1=\"226\" x2=\"11\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"34\" y1=\"226\" x2=\"25\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"48\" y1=\"226\" x2=\"39\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"62\" y1=\"226\" x2=\"53\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"76\" y1=\"226\" x2=\"67\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"90\" y1=\"226\" x2=\"81\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"104\" y1=\"226\" x2=\"95\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"118\" y1=\"226\" x2=\"109\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"132\" y1=\"226\" x2=\"123\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"146\" y1=\"226\" x2=\"137\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"160\" y1=\"226\" x2=\"151\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"174\" y1=\"226\" x2=\"165\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"188\" y1=\"226\" x2=\"179\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"202\" y1=\"226\" x2=\"193\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"216\" y1=\"226\" x2=\"207\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"230\" y1=\"226\" x2=\"221\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"244\" y1=\"226\" x2=\"235\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"258\" y1=\"226\" x2=\"249\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"272\" y1=\"226\" x2=\"263\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"286\" y1=\"226\" x2=\"277\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"300\" y1=\"226\" x2=\"291\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"314\" y1=\"226\" x2=\"305\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"328\" y1=\"226\" x2=\"319\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"342\" y1=\"226\" x2=\"333\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"356\" y1=\"226\" x2=\"347\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"370\" y1=\"226\" x2=\"361\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"384\" y1=\"226\" x2=\"375\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"398\" y1=\"226\" x2=\"389\" y2=\"235\" stroke=\"#999\" stroke-width=\"1.5\"/><text x=\"340\" y=\"100\" fill=\"#333\" font-size=\"18\" text-anchor=\"middle\">t = ?<\/text><\/svg>"}, {"q": "Eğik atılan bir top tepe noktasındayken hızı için hangisi doğrudur?", "a": ["Hız sıfırdır", "Yalnızca yatay bileşen kalır", "Yalnızca düşey bileşen kalır", "Hız en büyüktür"], "c": 1, "t": 20, "img": "<svg viewBox=\"0 0 420 250\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"Montserrat,Arial\" font-weight=\"700\"><defs><marker id=\"mr\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#e21b3c\"/><\/marker><marker id=\"mb\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#1368ce\"/><\/marker><marker id=\"mg\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#26890c\"/><\/marker><marker id=\"mk\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#333\"/><\/marker><marker id=\"mo\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#d89e00\"/><\/marker><\/defs><path d=\"M40,210 Q210,-40 380,210\" fill=\"none\" stroke=\"#e21b3c\" stroke-width=\"3\" stroke-dasharray=\"7 6\"/><circle cx=\"210\" cy=\"85\" r=\"8\" fill=\"#333\"/><text x=\"210\" y=\"60\" fill=\"#333\" font-size=\"16\" text-anchor=\"middle\">tepe noktası: v = ?<\/text><line x1=\"20\" y1=\"212\" x2=\"400\" y2=\"212\" stroke=\"#333\" stroke-width=\"3\"/><line x1=\"20\" y1=\"212\" x2=\"11\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"34\" y1=\"212\" x2=\"25\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"48\" y1=\"212\" x2=\"39\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"62\" y1=\"212\" x2=\"53\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"76\" y1=\"212\" x2=\"67\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"90\" y1=\"212\" x2=\"81\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"104\" y1=\"212\" x2=\"95\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"118\" y1=\"212\" x2=\"109\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"132\" y1=\"212\" x2=\"123\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"146\" y1=\"212\" x2=\"137\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"160\" y1=\"212\" x2=\"151\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"174\" y1=\"212\" x2=\"165\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"188\" y1=\"212\" x2=\"179\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"202\" y1=\"212\" x2=\"193\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"216\" y1=\"212\" x2=\"207\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"230\" y1=\"212\" x2=\"221\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"244\" y1=\"212\" x2=\"235\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"258\" y1=\"212\" x2=\"249\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"272\" y1=\"212\" x2=\"263\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"286\" y1=\"212\" x2=\"277\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"300\" y1=\"212\" x2=\"291\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"314\" y1=\"212\" x2=\"305\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"328\" y1=\"212\" x2=\"319\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"342\" y1=\"212\" x2=\"333\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"356\" y1=\"212\" x2=\"347\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"370\" y1=\"212\" x2=\"361\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"384\" y1=\"212\" x2=\"375\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"398\" y1=\"212\" x2=\"389\" y2=\"221\" stroke=\"#999\" stroke-width=\"1.5\"/><\/svg>"}, {"q": "1200 kg kütleli araca 3000 N net kuvvet etki ediyor. İvmesi kaç m/s²'dir?", "a": ["0,4", "3,6", "25", "2,5"], "c": 3, "t": 30, "img": "<svg viewBox=\"0 0 420 250\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"Montserrat,Arial\" font-weight=\"700\"><defs><marker id=\"mr\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#e21b3c\"/><\/marker><marker id=\"mb\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#1368ce\"/><\/marker><marker id=\"mg\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#26890c\"/><\/marker><marker id=\"mk\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#333\"/><\/marker><marker id=\"mo\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#d89e00\"/><\/marker><\/defs><line x1=\"20\" y1=\"190\" x2=\"400\" y2=\"190\" stroke=\"#333\" stroke-width=\"3\"/><line x1=\"20\" y1=\"190\" x2=\"11\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"34\" y1=\"190\" x2=\"25\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"48\" y1=\"190\" x2=\"39\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"62\" y1=\"190\" x2=\"53\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"76\" y1=\"190\" x2=\"67\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"90\" y1=\"190\" x2=\"81\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"104\" y1=\"190\" x2=\"95\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"118\" y1=\"190\" x2=\"109\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"132\" y1=\"190\" x2=\"123\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"146\" y1=\"190\" x2=\"137\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"160\" y1=\"190\" x2=\"151\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"174\" y1=\"190\" x2=\"165\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"188\" y1=\"190\" x2=\"179\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"202\" y1=\"190\" x2=\"193\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"216\" y1=\"190\" x2=\"207\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"230\" y1=\"190\" x2=\"221\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"244\" y1=\"190\" x2=\"235\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"258\" y1=\"190\" x2=\"249\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"272\" y1=\"190\" x2=\"263\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"286\" y1=\"190\" x2=\"277\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"300\" y1=\"190\" x2=\"291\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"314\" y1=\"190\" x2=\"305\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"328\" y1=\"190\" x2=\"319\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"342\" y1=\"190\" x2=\"333\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"356\" y1=\"190\" x2=\"347\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"370\" y1=\"190\" x2=\"361\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"384\" y1=\"190\" x2=\"375\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"398\" y1=\"190\" x2=\"389\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><path d=\"M110,178 h110 v-22 h-22 l-16,-22 h-44 l-16,22 h-12 z\" fill=\"#9fc3f5\" stroke=\"#333\" stroke-width=\"2.5\"/><circle cx=\"135\" cy=\"180\" r=\"11\" fill=\"#333\"/><circle cx=\"195\" cy=\"180\" r=\"11\" fill=\"#333\"/><line x1=\"225\" y1=\"165\" x2=\"330\" y2=\"165\" stroke=\"#26890c\" stroke-width=\"4\" marker-end=\"url(#mg)\"/><text x=\"285\" y=\"150\" fill=\"#26890c\" font-size=\"16\" text-anchor=\"middle\">3000 N<\/text><text x=\"165\" y=\"110\" fill=\"#333\" font-size=\"16\" text-anchor=\"middle\">1200 kg<\/text><\/svg>"}, {"q": "Sabit hızla doğrusal hareket eden bir cisme etki eden net kuvvet nedir?", "a": ["Hareket yönündedir", "Sıfırdır", "Ağırlığına eşittir", "Hızıyla orantılıdır"], "c": 1, "t": 20, "img": "<svg viewBox=\"0 0 420 250\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"Montserrat,Arial\" font-weight=\"700\"><defs><marker id=\"mr\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#e21b3c\"/><\/marker><marker id=\"mb\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#1368ce\"/><\/marker><marker id=\"mg\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#26890c\"/><\/marker><marker id=\"mk\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#333\"/><\/marker><marker id=\"mo\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#d89e00\"/><\/marker><\/defs><line x1=\"20\" y1=\"190\" x2=\"400\" y2=\"190\" stroke=\"#333\" stroke-width=\"3\"/><line x1=\"20\" y1=\"190\" x2=\"11\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"34\" y1=\"190\" x2=\"25\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"48\" y1=\"190\" x2=\"39\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"62\" y1=\"190\" x2=\"53\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"76\" y1=\"190\" x2=\"67\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"90\" y1=\"190\" x2=\"81\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"104\" y1=\"190\" x2=\"95\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"118\" y1=\"190\" x2=\"109\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"132\" y1=\"190\" x2=\"123\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"146\" y1=\"190\" x2=\"137\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"160\" y1=\"190\" x2=\"151\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"174\" y1=\"190\" x2=\"165\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"188\" y1=\"190\" x2=\"179\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"202\" y1=\"190\" x2=\"193\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"216\" y1=\"190\" x2=\"207\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"230\" y1=\"190\" x2=\"221\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"244\" y1=\"190\" x2=\"235\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"258\" y1=\"190\" x2=\"249\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"272\" y1=\"190\" x2=\"263\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"286\" y1=\"190\" x2=\"277\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"300\" y1=\"190\" x2=\"291\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"314\" y1=\"190\" x2=\"305\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"328\" y1=\"190\" x2=\"319\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"342\" y1=\"190\" x2=\"333\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"356\" y1=\"190\" x2=\"347\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"370\" y1=\"190\" x2=\"361\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"384\" y1=\"190\" x2=\"375\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><line x1=\"398\" y1=\"190\" x2=\"389\" y2=\"199\" stroke=\"#999\" stroke-width=\"1.5\"/><path d=\"M150,178 h110 v-22 h-22 l-16,-22 h-44 l-16,22 h-12 z\" fill=\"#9fc3f5\" stroke=\"#333\" stroke-width=\"2.5\"/><circle cx=\"175\" cy=\"180\" r=\"11\" fill=\"#333\"/><circle cx=\"235\" cy=\"180\" r=\"11\" fill=\"#333\"/><line x1=\"265\" y1=\"165\" x2=\"360\" y2=\"165\" stroke=\"#1368ce\" stroke-width=\"4\" marker-end=\"url(#mb)\"/><text x=\"315\" y=\"150\" fill=\"#1368ce\" font-size=\"18\" text-anchor=\"middle\">F<\/text><line x1=\"145\" y1=\"165\" x2=\"50\" y2=\"165\" stroke=\"#e21b3c\" stroke-width=\"4\" marker-end=\"url(#mr)\"/><text x=\"95\" y=\"150\" fill=\"#e21b3c\" font-size=\"18\" text-anchor=\"middle\">f<\/text><text x=\"205\" y=\"110\" fill=\"#333\" font-size=\"16\" text-anchor=\"middle\">v = sabit<\/text><\/svg>"}, {"q": "Dünya'da 70 kg olan bir öğrencinin Ay'daki kütlesi kaçtır? (gAy = 1,6 m/s²)", "a": ["112 kg", "11,2 kg", "686 kg", "70 kg"], "c": 3, "t": 20, "img": "<svg viewBox=\"0 0 420 250\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"Montserrat,Arial\" font-weight=\"700\"><defs><marker id=\"mr\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#e21b3c\"/><\/marker><marker id=\"mb\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#1368ce\"/><\/marker><marker id=\"mg\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#26890c\"/><\/marker><marker id=\"mk\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#333\"/><\/marker><marker id=\"mo\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#d89e00\"/><\/marker><\/defs><circle cx=\"120\" cy=\"230\" r=\"90\" fill=\"#9fd19f\"/><circle cx=\"320\" cy=\"230\" r=\"70\" fill=\"#ccc\"/><circle cx=\"120\" cy=\"70\" r=\"11\" fill=\"#1368ce\"/><line x1=\"120\" y1=\"81\" x2=\"120\" y2=\"122\" stroke=\"#1368ce\" stroke-width=\"6\"/><line x1=\"120\" y1=\"122\" x2=\"109\" y2=\"152\" stroke=\"#1368ce\" stroke-width=\"5\"/><line x1=\"120\" y1=\"122\" x2=\"131\" y2=\"152\" stroke=\"#1368ce\" stroke-width=\"5\"/><circle cx=\"320\" cy=\"90\" r=\"11\" fill=\"#1368ce\"/><line x1=\"320\" y1=\"101\" x2=\"320\" y2=\"142\" stroke=\"#1368ce\" stroke-width=\"6\"/><line x1=\"320\" y1=\"142\" x2=\"309\" y2=\"172\" stroke=\"#1368ce\" stroke-width=\"5\"/><line x1=\"320\" y1=\"142\" x2=\"331\" y2=\"172\" stroke=\"#1368ce\" stroke-width=\"5\"/><text x=\"120\" y=\"30\" fill=\"#26890c\" font-size=\"16\" text-anchor=\"middle\">Dünya<\/text><text x=\"320\" y=\"50\" fill=\"#333\" font-size=\"16\" text-anchor=\"middle\">Ay<\/text><text x=\"220\" y=\"130\" fill=\"#333\" font-size=\"18\" text-anchor=\"middle\">70 kg<\/text><\/svg>"}, {"q": "Masada duran kitaba etki eden N ve W kuvvetleri için hangisi doğrudur?", "a": ["Etki–tepki çiftidir", "N her zaman W'den büyüktür", "Aynı cisme etki eder, etki–tepki çifti değildir", "Birbirini götürmez, kitap hızlanır"], "c": 2, "t": 30, "img": "<svg viewBox=\"0 0 420 250\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"Montserrat,Arial\" font-weight=\"700\"><defs><marker id=\"mr\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#e21b3c\"/><\/marker><marker id=\"mb\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#1368ce\"/><\/marker><marker id=\"mg\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#26890c\"/><\/marker><marker id=\"mk\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#333\"/><\/marker><marker id=\"mo\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#d89e00\"/><\/marker><\/defs><rect x=\"80\" y=\"130\" width=\"260\" height=\"14\" fill=\"#c8a26b\" stroke=\"#333\" stroke-width=\"2\"/><line x1=\"100\" y1=\"144\" x2=\"100\" y2=\"230\" stroke=\"#6b4a1d\" stroke-width=\"8\"/><line x1=\"320\" y1=\"144\" x2=\"320\" y2=\"230\" stroke=\"#6b4a1d\" stroke-width=\"8\"/><rect x=\"170\" y=\"95\" width=\"80\" height=\"35\" rx=\"3\" fill=\"#bcd6fb\" stroke=\"#333\" stroke-width=\"2.5\"/><text x=\"210.0\" y=\"118.5\" fill=\"#333\" font-size=\"16\" text-anchor=\"middle\">kitap<\/text><line x1=\"225\" y1=\"95\" x2=\"225\" y2=\"20\" stroke=\"#26890c\" stroke-width=\"4\" marker-end=\"url(#mg)\"/><text x=\"250\" y=\"40\" fill=\"#26890c\" font-size=\"18\" text-anchor=\"middle\">N<\/text><line x1=\"195\" y1=\"112\" x2=\"195\" y2=\"200\" stroke=\"#e21b3c\" stroke-width=\"4\" marker-end=\"url(#mr)\"/><text x=\"170\" y=\"200\" fill=\"#e21b3c\" font-size=\"18\" text-anchor=\"middle\">W<\/text><\/svg>"}, {"q": "60 kg kişi, 2 m/s² ile yukarı hızlanan asansördeki tartıda kaç N görür? (g=9,8)", "a": ["708 N", "588 N", "468 N", "120 N"], "c": 0, "t": 60, "img": "<svg viewBox=\"0 0 420 250\" xmlns=\"http://www.w3.org/2000/svg\" font-family=\"Montserrat,Arial\" font-weight=\"700\"><defs><marker id=\"mr\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#e21b3c\"/><\/marker><marker id=\"mb\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#1368ce\"/><\/marker><marker id=\"mg\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#26890c\"/><\/marker><marker id=\"mk\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#333\"/><\/marker><marker id=\"mo\" viewBox=\"0 0 10 10\" refX=\"9\" refY=\"5\" markerWidth=\"6\" markerHeight=\"6\" orient=\"auto-start-reverse\"><path d=\"M0,0L10,5L0,10z\" fill=\"#d89e00\"/><\/marker><\/defs><rect x=\"140\" y=\"20\" width=\"140\" height=\"210\" fill=\"#f3f3f3\" stroke=\"#333\" stroke-width=\"3\"/><line x1=\"210\" y1=\"0\" x2=\"210\" y2=\"20\" stroke=\"#333\" stroke-width=\"3\"/><rect x=\"170\" y=\"212\" width=\"80\" height=\"12\" fill=\"#888\"/><circle cx=\"210\" cy=\"110\" r=\"11\" fill=\"#1368ce\"/><line x1=\"210\" y1=\"121\" x2=\"210\" y2=\"162\" stroke=\"#1368ce\" stroke-width=\"6\"/><line x1=\"210\" y1=\"162\" x2=\"199\" y2=\"192\" stroke=\"#1368ce\" stroke-width=\"5\"/><line x1=\"210\" y1=\"162\" x2=\"221\" y2=\"192\" stroke=\"#1368ce\" stroke-width=\"5\"/><line x1=\"310\" y1=\"170\" x2=\"310\" y2=\"90\" stroke=\"#1368ce\" stroke-width=\"4\" marker-end=\"url(#mb)\"/><text x=\"320\" y=\"135\" fill=\"#1368ce\" font-size=\"15\" text-anchor=\"start\">a = 2 m/s²<\/text><text x=\"70\" y=\"130\" fill=\"#333\" font-size=\"16\" text-anchor=\"middle\">60 kg<\/text><text x=\"70\" y=\"155\" fill=\"#333\" font-size=\"16\" text-anchor=\"middle\">tartı = ?<\/text><\/svg>"}]}};
+const TEAMS=[{n:"Kırmızı",c:"#e21b3c"},{n:"Mavi",c:"#1368ce"},{n:"Sarı",c:"#d89e00"},{n:"Yeşil",c:"#26890c"},{n:"Turuncu",c:"#e86100"},{n:"Mor",c:"#864cbf"}];
+const SHAPES=[
+ '<svg viewBox="0 0 40 40"><polygon points="20,4 37,35 3,35" fill="#fff"/></svg>',
+ '<svg viewBox="0 0 40 40"><polygon points="20,2 38,20 20,38 2,20" fill="#fff"/></svg>',
+ '<svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="#fff"/></svg>',
+ '<svg viewBox="0 0 40 40"><rect x="5" y="5" width="30" height="30" fill="#fff"/></svg>'];
+const PREFIX="iku-fizik-quiz-";
+const ICE={iceServers:[{urls:"stun:stun.l.google.com:19302"},{urls:"stun:global.stun.twilio.com:3478"},
+  {urls:["turn:openrelay.metered.ca:80","turn:openrelay.metered.ca:443","turn:openrelay.metered.ca:443?transport=tcp"],username:"openrelayproject",credential:"openrelayproject"}]};
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));}
+
+// set selector
+$("setSel").innerHTML=Object.entries(SETS).map(([k,v])=>`<option value="${k}">${esc(v.title)} (${v.qs.length} soru)</option>`).join("");
+const params=new URLSearchParams(location.search);
+if(params.get("pin")){$("pinIn").value=params.get("pin");startPlayer(params.get("pin"));}
+$("goJoin").onclick=()=>{const p=$("pinIn").value.replace(/\D/g,"");if(p.length===6)startPlayer(p);};
+$("goHost").onclick=()=>startHost($("setSel").value);
+
+/* ================= HOST ================= */
+function startHost(setKey){
+  const SET=SETS[setKey]; const QS=SET.qs;
+  const pin=String(Math.floor(100000+Math.random()*900000));
+  const players={}; // pid -> {name,team,score,conn,ans}
+  let qi=-1, phase="lobby", qStart=0, timerInt=null, answers={}, teamN=4;
+  show("sLobby"); $("lobbySet").textContent=SET.title+" · "+QS.length+" soru";
+  $("pinShow").textContent=pin;
+  const url=location.origin+location.pathname+"?pin="+pin;
+  $("urlShow").textContent=url;
+  try{const q=new QRGen(-1,QRECL.M);q.addData(url);q.make();const n=q.getModuleCount();let r="";
+    for(let y=0;y<n;y++)for(let x=0;x<n;x++)if(q.isDark(y,x))r+=`M${x+4},${y+4}h1v1h-1z`;
+    $("qr").innerHTML=`<svg viewBox="0 0 ${n+8} ${n+8}" style="width:min(300px,100%);height:auto;background:#fff" shape-rendering="crispEdges"><path d="${r}" fill="#000"/></svg>`;}catch(e){$("qr").textContent="QR oluşturulamadı";}
+  const peer=new Peer(PREFIX+pin,{config:ICE,debug:1});
+  peer.on("open",()=>{$("netStat").textContent="Hazır · öğrenciler katılabilir";});
+  peer.on("error",e=>{$("netStat").textContent="Bağlantı hatası: "+e.type+" (sayfayı yenileyip tekrar başlatın)";});
+  peer.on("disconnected",()=>{try{peer.reconnect();}catch(e){}});
+  peer.on("connection",conn=>{
+    conn.on("data",d=>onData(conn,d));
+    conn.on("close",()=>{for(const p of Object.values(players)) if(p.conn===conn) p.conn=null; renderLobby();});
+  });
+  $("teamN").onchange=()=>{teamN=+$("teamN").value;broadcastLobby();renderLobby();};
+  function send(p,msg){if(p.conn&&p.conn.open){try{p.conn.send(msg);}catch(e){}}}
+  function broadcast(msg){Object.values(players).forEach(p=>send(p,msg));}
+  function broadcastLobby(){broadcast({t:"lobby",teams:TEAMS.slice(0,teamN).map(x=>x.n)});}
+  function onData(conn,d){
+    if(!d||typeof d!=="object")return;
+    if(d.t==="hello"){conn.send({t:"lobby",teams:TEAMS.slice(0,teamN).map(x=>x.n),phase});
+      const p=players[d.pid]; if(p){p.conn=conn;conn.send({t:"welcome",name:p.name,team:p.team,score:p.score});resync(p);} return;}
+    if(d.t==="join"){
+      const name=String(d.name||"").trim().slice(0,18); const team=Math.max(0,Math.min(teamN-1,d.team|0));
+      if(!name)return;
+      const p=players[d.pid]||{score:0,ans:{}};
+      Object.assign(p,{name,team,conn}); players[d.pid]=p;
+      conn.send({t:"welcome",name,team,score:p.score}); renderLobby(); resync(p); return;}
+    if(d.t==="ans"){
+      const p=players[d.pid]; if(!p||phase!=="question"||d.i!==qi||answers[d.pid])return;
+      const c=d.c|0; if(c<0||c>3)return;
+      answers[d.pid]={c,dt:(Date.now()-qStart)/1000};
+      send(p,{t:"got"});
+      $("ansCount").firstChild.nodeValue=Object.keys(answers).length;
+      if(Object.keys(answers).length>=activeCount()) endQuestion();
+    }
+  }
+  function activeCount(){return Object.values(players).filter(p=>p.conn&&p.conn.open).length||1;}
+  function resync(p){ if(phase==="question"&&!answers[Object.keys(players).find(k=>players[k]===p)]){const q=QS[qi];const left=q.t-(Date.now()-qStart)/1000; if(left>1) send(p,{t:"q",i:qi,n:QS.length,left:Math.round(left)});}}
+  function renderLobby(){
+    const ps=Object.values(players);
+    $("pCount").textContent=ps.length+" oyuncu";
+    $("teamsBox").innerHTML=TEAMS.slice(0,teamN).map((t,i)=>{const m=ps.filter(p=>p.team===i);
+      return `<div class="team" style="background:${t.c}"><h4><span>${t.n}</span><span>${m.length}</span></h4><div class="names">${m.map(p=>`<span class="chip">${esc(p.name)}</span>`).join("")}</div></div>`;}).join("");
+  }
+  renderLobby();
+  $("startBtn").onclick=()=>{ if(!Object.keys(players).length&&!window.confirmNoPlayers){window.confirmNoPlayers=1;$("startBtn").textContent="Oyuncu yok, yine de başlat ▶";return;} nextQuestion();};
+  function nextQuestion(){
+    qi++; if(qi>=QS.length){return finale();}
+    phase="question"; answers={};
+    const q=QS[qi]; show("sQ");
+    $("qText").textContent=q.q; $("qNum").textContent=(qi+1)+" / "+QS.length;
+    $("qOpts").innerHTML=q.a.map((a,k)=>`<div class="opt o${k}">${SHAPES[k]}<span>${esc(a)}</span><span class="tick"></span></div>`).join("");
+    $("midBox").innerHTML=q.img?`<div class="qimg">${q.img}</div>`:""; $("ansCount").innerHTML='0<span>cevap</span>';
+    $("qNext").style.display="none"; $("qSkip").style.display="";
+    qStart=Date.now(); let left=q.t; $("timer").textContent=left; $("timer").classList.remove("low");
+    broadcast({t:"q",i:qi,n:QS.length,left:q.t});
+    clearInterval(timerInt);
+    timerInt=setInterval(()=>{left=Math.max(0,Math.ceil(q.t-(Date.now()-qStart)/1000)); $("timer").textContent=left; $("timer").classList.toggle("low",left<=5); if(left<=0) endQuestion();},250);
+  }
+  $("qSkip").onclick=()=>endQuestion();
+  function endQuestion(){
+    if(phase!=="question")return; phase="reveal"; clearInterval(timerInt);
+    const q=QS[qi]; const cnt=[0,0,0,0];
+    Object.values(answers).forEach(a=>cnt[a.c]++);
+    for(const [pid,p] of Object.entries(players)){
+      const a=answers[pid]; let pts=0, ok=false;
+      if(a&&a.c===q.c){ok=true;pts=Math.round(1000*(1-Math.min(1,a.dt/q.t)/2));}
+      p.score+=pts; p.last={ok,pts,answered:!!a,dt:a?a.dt:null}; if(a){p.tsum=(p.tsum||0)+a.dt;p.tn=(p.tn||0)+1;}
+    }
+    const ranked=Object.entries(players).sort((x,y)=>y[1].score-x[1].score);
+    ranked.forEach(([pid,p],r)=>send(p,{t:"res",ok:p.last.ok,pts:p.last.pts,answered:p.last.answered,dt:p.last.dt,score:p.score,rank:r+1,of:ranked.length,correct:q.c}));
+    document.querySelectorAll("#qOpts .opt").forEach((el,k)=>{if(k!==q.c)el.classList.add("dim");else el.querySelector(".tick").textContent="✔";});
+    const mx=Math.max(1,...cnt);
+    $("midBox").innerHTML=`<div class="dist">${cnt.map((n,k)=>`<div class="dcol"><div class="n">${n}</div><div class="b o${k}" style="height:${Math.round(150*n/mx)}px;opacity:${k===q.c?1:.5}"></div><div class="s o${k}">${SHAPES[k].replace('<svg','<svg style="width:28px;height:28px"')}</div></div>`).join("")}</div>`;
+    $("timer").textContent="✔"; $("qSkip").style.display="none"; $("qNext").style.display="";
+    $("qNext").textContent = qi===QS.length-1 ? "Sonuçlar ▶" : "Sıralama ▶";
+  }
+  $("qNext").onclick=()=>{ if(qi===QS.length-1) return finale(); board(); };
+  function teamScores(){
+    return TEAMS.slice(0,teamN).map((t,i)=>{const m=Object.values(players).filter(p=>p.team===i);
+      const avg=m.length?Math.round(m.reduce((s,p)=>s+p.score,0)/m.length):0; return {...t,i,avg,size:m.length};}).sort((a,b)=>b.avg-a.avg);
+  }
+  function fmt(s){return s.toFixed(1).replace(".",",")+" sn";}
+  function timeTag(p){const l=p.last; if(!l)return ""; if(!l.answered) return '<span class="tm no">cevap yok</span>';
+    return `<span class="tm ${l.ok?"ok":"no"}">${l.ok?"✔":"✖"} ${fmt(l.dt)}</span>`;}
+  function board(){
+    phase="board"; show("sBoard");
+    $("boardSub").textContent=(qi+1)+". sorudan sonra · takım puanı = üyelerin ortalaması";
+    $("boardTeams").innerHTML=teamScores().map((t,r)=>`<div class="row"><span>${r+1}. <span class="sw" style="background:${t.c}"></span>${t.n} <small style="font-weight:600;font-size:15px;color:#777">(${t.size} kişi)</small></span><span>${t.avg}</span></div>`).join("");
+    const top=Object.values(players).sort((a,b)=>b.score-a.score).slice(0,8);
+    $("boardPlayers").innerHTML=top.map((p,r)=>`<div class="row" style="font-size:20px;padding:10px 18px"><span>${r+1}. <span class="sw" style="background:${TEAMS[p.team].c}"></span>${esc(p.name)}${timeTag(p)}</span><span>${p.score}</span></div>`).join("")||'<div class="sub">Henüz oyuncu yok</div>';
+    broadcast({t:"wait",msg:"Sıralamaya bak! Sıradaki soru geliyor…"});
+  }
+  $("boardNext").onclick=()=>nextQuestion();
+  function finale(){
+    phase="final"; show("sFinal");
+    const ts=teamScores().filter(t=>t.size>0); const order=[1,0,2];
+    $("podium").innerHTML=order.filter(k=>ts[k]).map(k=>`<div class="pd p${k+1}"><div class="nm"><span class="sw" style="display:inline-block;width:20px;height:20px;border-radius:4px;background:${ts[k].c};vertical-align:middle;margin-right:8px"></span>${ts[k].n}</div><div class="blk"><div class="rk">${k+1}</div><div class="pt">${ts[k].avg} puan</div></div></div>`).join("");
+    const top=Object.values(players).sort((a,b)=>b.score-a.score).slice(0,5);
+    $("finalPlayers").innerHTML=top.map((p,r)=>`<div class="row" style="font-size:20px;padding:10px 18px"><span>${r+1}. <span class="sw" style="background:${TEAMS[p.team].c}"></span>${esc(p.name)}${p.tn?`<span class="tm">ort. ${fmt(p.tsum/p.tn)}</span>`:""}</span><span>${p.score}</span></div>`).join("");
+    const tr={}; ts.forEach((t,r)=>tr[t.i]=r+1);
+    const ranked=Object.values(players).sort((a,b)=>b.score-a.score);
+    ranked.forEach((p,r)=>send(p,{t:"end",rank:r+1,of:ranked.length,score:p.score,teamRank:tr[p.team],team:TEAMS[p.team].n}));
+  }
+  document.addEventListener("keydown",e=>{ if(e.code!=="Space"&&e.code!=="ArrowRight")return;
+    if(phase==="reveal") $("qNext").click(); else if(phase==="board") $("boardNext").click(); });
+}
+
+/* ================= PLAYER ================= */
+function startPlayer(pin){
+  let pid; try{pid=sessionStorage.getItem("pid");}catch(e){}
+  if(!pid){pid=Math.random().toString(36).slice(2,10);try{sessionStorage.setItem("pid",pid);}catch(e){}}
+  let conn=null, me=null, teamSel=0, teams=["Kırmızı","Mavi","Sarı","Yeşil"], curQ=-1, peer=null;
+  msg('<div class="spinner"></div><div class="big" style="font-size:26px">Oyuna bağlanılıyor…</div>');
+  function msg(html,cls){show("sPMsg"); const b=$("pMsgBox"); b.className="center"+(cls?" "+cls:""); b.style.cssText="flex:1;display:flex;flex-direction:column"; b.innerHTML=html; $("pMsgBox").parentElement.className="screen on"+(cls?" "+cls:"");}
+  function connect(){
+    peer=new Peer(undefined,{config:ICE,debug:1});
+    peer.on("open",()=>{
+      conn=peer.connect(PREFIX+pin,{reliable:true});
+      conn.on("open",()=>conn.send({t:"hello",pid}));
+      conn.on("data",onData);
+      conn.on("close",()=>{msg('<div class="spinner"></div><div class="big" style="font-size:24px">Bağlantı koptu, tekrar bağlanılıyor…</div>');setTimeout(()=>{try{peer.destroy();}catch(e){}connect();},2000);});
+    });
+    peer.on("error",e=>{ if(e.type==="peer-unavailable"){msg('<div class="big" style="font-size:26px">Oyun bulunamadı</div><p class="sub">PIN\'i kontrol et ya da öğretmenin ekranındaki QR\'ı tekrar okut.</p>');}
+      else {setTimeout(()=>{try{peer.destroy();}catch(x){}connect();},2500);} });
+  }
+  connect();
+  function renderPick(){
+    $("tPick").innerHTML=teams.map((n,i)=>`<button data-i="${i}" class="${i===teamSel?"sel":""}" style="background:${TEAMS[i].c}">${esc(n)} Takım</button>`).join("");
+    $("tPick").querySelectorAll("button").forEach(b=>b.onclick=()=>{teamSel=+b.dataset.i;renderPick();});
+  }
+  $("pJoinBtn").onclick=()=>{const n=$("nameIn").value.trim(); if(!n){$("pJoinMsg").textContent="Adını yaz";return;}
+    if(conn&&conn.open) conn.send({t:"join",pid,name:n,team:teamSel}); else $("pJoinMsg").textContent="Bağlantı bekleniyor…";};
+  function setHead(){ if(!me)return; $("pName").textContent=me.name+" · "+TEAMS[me.team].n; $("pName2").textContent=me.name; $("pScore").textContent=me.score; }
+  function onData(d){
+    if(!d||typeof d!=="object")return;
+    if(d.t==="lobby"){teams=d.teams; if(teamSel>=teams.length)teamSel=0; if(!me){show("sPJoin");renderPick();} return;}
+    if(d.t==="welcome"){me={name:d.name,team:d.team,score:d.score}; setHead();
+      msg(`<div style="font-size:60px">✅</div><div class="big" style="font-size:28px">Oyundasın!</div><p class="sub">Adını öğretmenin ekranında gör. Yarışma birazdan başlayacak.</p>`); return;}
+    if(d.t==="q"){curQ=d.i; show("sPAns"); $("pQn").textContent=(d.i+1)+" / "+d.n;
+      $("pBtns").innerHTML=[0,1,2,3].map(k=>`<button class="pbtn o${k}" data-k="${k}">${SHAPES[k]}</button>`).join("");
+      $("pBtns").querySelectorAll("button").forEach(b=>b.onclick=()=>{conn.send({t:"ans",pid,i:curQ,c:+b.dataset.k});
+        msg('<div class="spinner"></div><div class="big" style="font-size:28px">Cevabın alındı!</div><p class="sub">Diğerleri bekleniyor…</p>');});
+      return;}
+    if(d.t==="got") return;
+    if(d.t==="res"){ if(me){me.score=d.score;setHead();}
+      const head=!d.answered?"Süre doldu ⏱":(d.ok?"Doğru! ✔":"Yanlış ✖");
+      msg(`<div class="big">${head}</div><div class="big" style="font-size:30px;margin-top:10px">+${d.pts}</div>${d.dt!=null?`<p class="sub">${d.dt.toFixed(1).replace(".",",")} saniyede cevapladın</p>`:""}<p class="sub">Toplam ${d.score} puan · ${d.rank}. / ${d.of}</p>`, d.ok?"res-ok":"res-no"); return;}
+    if(d.t==="wait"){msg(`<div class="big" style="font-size:26px">${esc(d.msg)}</div>`); return;}
+    if(d.t==="end"){msg(`<div style="font-size:64px">🏁</div><div class="big">${d.rank}. oldun!</div><p class="sub">${d.score} puan · ${d.of} oyuncu</p><p class="sub" style="margin-top:12px">${esc(d.team)} Takım: ${d.teamRank}. sırada</p>`); return;}
+  }
+}
+}
+</script>
+</body>
+</html>
